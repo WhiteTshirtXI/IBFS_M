@@ -27,7 +27,8 @@ tic
 
 %--
 
-mats.B = sparse( ngam + nf, ngam + nf ); 
+ndof = ngam + 6*nb + nf;
+mats.B = sparse( ndof, ndof ); 
 
 %--(1,1) block
 
@@ -35,9 +36,30 @@ mats.B = sparse( ngam + nf, ngam + nf );
     
     [i,j,s] = find( B11 );
     
-    mats.B = mats.B + sparse( i,j,s, ngam+nf, ngam+nf );
+    mats.B = mats.B + sparse( i,j,s, ndof, ndof );
 
 %--
+
+%--(2,2) block
+
+    B22 = mats.M_flag;
+    
+    [i,j,s] = find( B22 );
+    
+    mats.B = mats.B + sparse( i+ngam,j+ngam,s, ndof, ndof );
+
+%--
+
+%--(3,3) block
+
+    B33 = eye( size( mats.M_flag ) );
+    
+    [i,j,s] = find( B33 );
+    
+    mats.B = mats.B + sparse( i+ngam + 3*nb,j+ngam+ 3*nb,s, ndof, ndof );
+
+%--
+
 
 display('     done')
 

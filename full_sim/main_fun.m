@@ -9,21 +9,19 @@ addpath('./build_mats/')
 
 %--
 
-%---Load body
+%---Build flag
 
-    if parms.body == 'cyl'
-        
-        [xb, ds] = build_cylinder( parms.L / 2, parms.len/parms.m );
-    else
-        Warning(['Requested body type is not supported. \n'...
-            'Must provide your own body points as a vector xb.'])
-    end
+    h = parms.len / parms.m;
+    parms.ds = 2*h;
     
-    load( 'body.mat' );
-    parms.xb = xb;
-    parms.nb = length( xb ) / 2;
-    parms.ds = ds;
-        
+    %Reference configuration for flag
+    xb0x = 0 : parms.ds : 1;
+    xb0y = zeros( size( xb0x ) );
+    
+    parms.xb0 = [xb0x xb0y];
+    parms.nb = length( xb0x );
+    soln.xb = parms.xb0; %body position begins in undeformed state
+    
 %---
     
 %---preprocessing: 
@@ -33,7 +31,7 @@ addpath('./build_mats/')
         %build and store matrices using sparse operations
         display('------------------------------------------------------------')
         display('Pre-processing stage: building and storing matrices for run')
-        mats = get_mats( parms );
+        mats = get_mats_preproc( parms );
 
         pre_time = toc;
 
@@ -41,6 +39,7 @@ addpath('./build_mats/')
         display(['Spent ',num2str(pre_time),' secs on pre-processing.']) 
         display('------------------------------------------------------------')
     end
+    
 %---
     
 
@@ -49,15 +48,10 @@ addpath('./build_mats/')
     for it = parms.it_start : parms.it_stop
         
         %output occasionally to tell us we're advancing in time
-        if mod( it, 100 ) == 0 & it > 0
+        if mod( it, 1 ) == 0 & it > 0
             display( ['Advancing to time step ', num2str( it+1 )] )
         end
         
-        %initialize soln structure at it = 0
-        if it == 0
-            soln = [];
-        end
-
         %advance a time step and return circulation (gamma), vel flux (q), and 
         %surface stress (fb)
         [soln,parms,mats] = advance( it, parms, mats, soln );

@@ -2,66 +2,25 @@ clear all, close all, clc
 
 
 %%
-addpath('../base_flow/build_mats/')
+addpath('./build_mats/')
 
 % Contour maximum values and number of contour levels
 % Vorticity
-% cmax_w = 3;
-% clev_w = 20;
-% clevs = linspace( -cmax_w, cmax_w, clev_w );
+cmax_w = 3;
+clev_w = 20;
+clevs = linspace( -cmax_w, cmax_w, clev_w );
 
 % Range for plots
-range = [-0.5 5 -0.5 0.5];
+range = [-5 10 -5 5];
 
 load('cmap.mat')
 
-load('../rigid_base/base.mat')
 
-load('modes.mat')
+    load(['base.mat'])
 
-D
-
-k = 1;
-
-%--Various variables 
-    %# of x-vel (flux) points
-    nu = get_velx_ind( parms.m-1, parms.n, parms.mg, parms );
-    %# of y-vel (flux) points
-    nv = get_vely_ind( parms.m, parms.n-1, parms.mg, parms );
-    %Total # of vel (flux) points
-    nq = nu + nv;
-    %# of vort (circ) points
-    ngam = get_vort_ind( parms.m-1, parms.n-1, parms.mg, parms );
-    %# of body points
-    nb = parms.nb;
-    %# of surface stress points
-    nf = nb * 2;
-%--
-
-%--specify matrices for ease in ensuing code
-
-    if exist('RC.mat', 'file') ~= 2
-        mats = get_RC( parms );
-        save( 'RC.mat', 'mats')
-    else
-        load('RC.mat')
-    end
-
-    C = mats.C; R = mats.R; 
-
-%--
-
-for jj = 1 : 2
+    gamma = soln.gamma;
     
-    if jj == 1
-        Vv = real( V( 1 : ngam, k) );
-    else
-        Vv = imag( V( 1 : ngam, k ) );
-    end
-
-
-    
-    gamma = R * C * Vv;
+    s = (mats.RC ) \ gamma;
     
     Xv = zeros( parms.n-1, parms.m-1, parms.mg );
     Yv = Xv;
@@ -80,7 +39,7 @@ for jj = 1 : 2
 
         % Offset in y direction for current grid
         offy = 2^(lev-1) * (parms.n*parms.len/parms.m)/2 - ...
-            (parms.n*parms.len/parms.m)/2 + parms.offy ;
+        (parms.n*parms.len/parms.m)/2 + parms.offy ;
 
 
         %--get grid points
@@ -104,8 +63,8 @@ for jj = 1 : 2
             ind_e = get_vort_ind( parms.m-1, parms.n-1, lev, parms );
             omega = gamma(ind_s : ind_e ) / delta^2;
 
-%             omega(omega > cmax_w ) = cmax_w;
-%             omega(omega < -cmax_w ) = -cmax_w;
+            omega(omega > cmax_w ) = cmax_w;
+            omega(omega < -cmax_w ) = -cmax_w;
 
             Omega(:,:,lev) = transpose( reshape( omega, parms.m-1, parms.n-1 ) );                                  
 
@@ -170,35 +129,23 @@ for jj = 1 : 2
     
     %plot them
     
-    figure(1), subplot(2,1,jj)
-    
-    cmax_w = max(max(max(abs( Omega(:,:,1) ))));
-    clevs = linspace( -0.2, 0.2, 20 ) ;
-    Omega( Omega > max(clevs) ) = max(clevs);
-    Omega( Omega < min(clevs) ) = min( clevs );
+    figure(1), clf
 
     for j = parms.mg : -1 : 1
         
-        contourf(Xv(:,:,j), Yv(:,:,j), Omega(:,:,j), clevs, ...
-            'edgecolor','none'); shading flat;
-        
+        figure(1), hold on
+%         contourf(Xv(:,:,j), Yv(:,:,j), Omega(:,:,j), clevs, ...
+%             'edgecolor','none'); shading flat;
+
+        pcolor(Xv(:,:,j), Yv(:,:,j), Omega(:,:,j) ); shading interp;
+
         colormap( cmap )
         axis equal
-        axis(range)
-        set(gca, 'TickLabelInterpreter','latex','fontsize',14)
-        box on
-        if jj == 1
-            str = 'Re($\omega_p$)';
-        else
-            str = 'Im($\omega_p$)';
-        end
-        
-        title(str, 'interpreter','latex','fontsize',18)
-        hold on        
+%         axis(range)
+                
     end
     
     %plot body
-    plot(soln.xb( 1 : parms.nb ), soln.xb( 1+parms.nb : 2*parms.nb ),'k', ...
-        'linewidth', 2)
+    fill(soln.xb( 1 : parms.nb ), soln.xb( 1+parms.nb : 2*parms.nb ),'k'  )
 
-end
+
