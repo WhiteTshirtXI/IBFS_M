@@ -1,11 +1,11 @@
-function ET = get_ET( xb, grid_parms, soln )
+function ET = get_ET( grid_parms )
 
 %Return the regularization matrix ET (scaled to be the transpose of E),
 %which takes quantities on the IB and smears them to the flow domain.
 m = grid_parms.m; n = grid_parms.n; mg = grid_parms.mg;
 nb = grid_parms.nb;
 len = grid_parms.len;
-
+xb = grid_parms.xb;
 supp = grid_parms.supp; offx = grid_parms.offx;
 offy = grid_parms.offy;
 

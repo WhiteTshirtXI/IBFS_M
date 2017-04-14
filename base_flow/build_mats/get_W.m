@@ -15,7 +15,7 @@ m = grid_parms.m; n = grid_parms.n; mg = grid_parms.mg;
 %Get size of W
 nrows = get_velx_ind( m-1, n, mg, grid_parms ) + ...
     get_vely_ind( m, n-1, mg, grid_parms );
-ncols = get_vort_ind( m-1, n-1, mg, grid_parms );
+ncols = get_vort_ind( m, n-1, mg, grid_parms );
 
 grid_parms.nrows = nrows;
 grid_parms.ncols = ncols;

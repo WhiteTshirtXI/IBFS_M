@@ -15,7 +15,7 @@ tic
     %Total # of vel (flux) points
     nq = nu + nv;
     %# of vort (circ) points
-    ngam = get_vort_ind( parms.m-1, parms.n-1, parms.mg, parms );
+    ngam = get_vort_ind( parms.m, parms.n-1, parms.mg, parms );
     %# of body points
     nb = parms.nb;
     %# of surface stress points
@@ -26,101 +26,53 @@ tic
 
     C = mats.C; R = mats.R; M_vel = mats.M_vel; Lap = mats.Lap;
     Q = mats.Q; W = mats.W; ET = mats.ET; E = mats.E;
-    I = mats.I; RC = mats.RC; M_fl = mats.M_flag; Q_fl = mats.Q_flag;
-    W_fl = mats.W_flag; Itil_fl = mats.Itilde_flag; K_fl = mats.K_flag;
-    J_Ef = mats.J_Ef; J_Wf = mats.J_Wf; J_Es = mats.J_Es;
+    I = mats.I; RC = mats.RC; I_til = mats.I_til; 
+    I_til_s2vort = mats.I_til_s2vort;
 
 %--
 
-ndof = ngam + 6*nb + nf;
-mats.Dr = sparse( ndof, ndof ); 
+mats.Dg = sparse( ngam + nf, ngam + nf ); 
 
 %--(1,1) block
 
     diagWgam = sparse( 1:nq, 1:nq, W * R * C * soln.s, nq, nq ); 
     diagQq = sparse( 1:nq, 1:nq, Q * ( C * soln.s + parms.q0), nq, nq );
     
-    B11 = -Lap * RC - R * ( diagWgam * (Q * C) + diagQq * W * RC );
+    B11 = -Lap * RC - R * ( diagWgam * (Q * C) + diagQq * W * R * C );
+    
+    %modify block to account for Neumann BCs:
+    B11 = I_til * B11 + I_til_s2vort * RC;
+    
+%     B11 = I_til * B11 + ( I - I_til ) * RC;
+
+    
+%     max(max(abs( I_til_s2vort - ( I - I_til ) ) ) )
     
     [i,j,s] = find( B11 );
     
-    mats.Dr = mats.Dr + sparse( i,j,s, ndof, ndof );
+    mats.Dg = mats.Dg + sparse( i,j,s, ngam+nf, ngam+nf );
 
 %--
 
-%--(1,3) block
+%--(1,2) block
 
-    B13 = -J_Ef;
-    
-    [i,j,s] = find( B13 );
-    
-    mats.Dr = mats.Dr + sparse( i,j + ngam + 3*nb ,s, ndof, ndof );
+    B12 = -R * ET;
 
+    %modify block to account for Neumann BCs:
+    B12 = I_til * B12;
+    
+    [i,j,s] = find( B12 );
+    
+    mats.Dg = mats.Dg + sparse( i, j + ngam , s , ngam+nf, ngam+nf );
 %--
 
-%--(1,4) block
+%--(2,1) block
 
-    B14 = -R * ET;
+    B21 = E * M_vel * C;
 
-    [i,j,s] = find( B14 );
+    [i,j,s] = find( B21 );
     
-    mats.Dr = mats.Dr + sparse( i, j + ngam + 6*nb , s , ndof, ndof );
-%--
-
-%--(2,3) block
-
-    B23 = -K_fl + J_Wf;
-    
-    [i,j,s] = find( B23 );
-    
-    mats.Dr = mats.Dr + sparse( i + ngam, j + ngam + 3*nb , s , ndof, ndof );
-%--
-
-%--(2,4) block
-
-    B24 = Q_fl * W_fl;
-    
-    [i,j,s] = find( B24 );
-    
-    mats.Dr = mats.Dr + sparse( i + ngam, j + ngam + 6*nb , s , ndof, ndof );
-%--
-
-%--(3,2) block
-
-    B32 = speye( 3*nb );
-    
-    [i,j,s] = find( B32 );
-    
-    mats.Dr = mats.Dr + sparse( i + ngam + 3*nb, j + ngam, s, ndof, ndof );
-%--
-
-%--(4,1) block
-
-    B41 = E * M_vel * C;
-
-    [i,j,s] = find( B41 );
-    
-    mats.Dr = mats.Dr + sparse( i + ngam + 6*nb, j , s , ndof, ndof );
-%--
-
-%--(4,2) block
-
-    B42 = -Itil_fl;
-    
-    [i,j,s] = find( B42 );
-    
-    mats.Dr = mats.Dr + sparse( i + ngam + 6*nb, j + ngam , s , ndof, ndof );
-
-%--
-
-%--(4,3) block
-
-    B43 = J_Es;
-
-    [i,j,s] = find( B43 );
-    
-    mats.Dr = mats.Dr + sparse( i + ngam + 6*nb, j + ngam + 3*nb, s , ndof, ndof );
-
+    mats.Dg = mats.Dg + sparse( i + ngam, j , s , ngam+nf, ngam+nf );
 %--
 
 JAC_time = toc;

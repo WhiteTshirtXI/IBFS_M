@@ -11,11 +11,9 @@ addpath('../base_flow/build_mats/')
 % clevs = linspace( -cmax_w, cmax_w, clev_w );
 
 % Range for plots
-range = [-0.5 5 -0.5 0.5];
+range = [-5 10 -5 5];
 
 load('cmap.mat')
-
-load('../rigid_base/base.mat')
 
 load('modes.mat')
 
@@ -31,7 +29,7 @@ k = 1;
     %Total # of vel (flux) points
     nq = nu + nv;
     %# of vort (circ) points
-    ngam = get_vort_ind( parms.m-1, parms.n-1, parms.mg, parms );
+    ngam = get_vort_ind( parms.m, parms.n-1, parms.mg, parms );
     %# of body points
     nb = parms.nb;
     %# of surface stress points
@@ -40,32 +38,27 @@ k = 1;
 
 %--specify matrices for ease in ensuing code
 
-    if exist('RC.mat', 'file') ~= 2
-        mats = get_RC( parms );
-        save( 'RC.mat', 'mats')
-    else
-        load('RC.mat')
-    end
-
-    C = mats.C; R = mats.R; 
+    C = mats.C; R = mats.R; M_vel = mats.M_vel; Lap = mats.Lap;
+    Q = mats.Q; W = mats.W; ET = mats.ET; E = mats.E;
+    I = mats.I; RC = mats.RC;
 
 %--
 
-for jj = 1 : 2
-    
-    if jj == 1
-        Vv = real( V( 1 : ngam, k) );
-    else
-        Vv = imag( V( 1 : ngam, k ) );
-    end
+Vv = real( V( 1 : ngam, k) );
+
 
 
     
     gamma = R * C * Vv;
     
-    Xv = zeros( parms.n-1, parms.m-1, parms.mg );
+    Xv = zeros( parms.n-1, parms.m-1, parms.mg-1 );
     Yv = Xv;
     Omega = Xv;
+    
+    Xvmg = zeros( parms.n-1, parms.m );
+    Yvmg = Xvmg;
+    Omegamg = Xvmg;
+
 
     %Get x-y points and vorticity
     for lev = 1 : parms.mg
@@ -86,13 +79,23 @@ for jj = 1 : 2
         %--get grid points
 
 
-            xv = delta : delta : (parms.m-1) * delta;
-            yv = delta : delta : (parms.n-1) * delta;
+           if lev < parms.mg
+                xv = delta : delta : (parms.m-1) * delta;
+                yv = delta : delta : (parms.n-1) * delta;
 
-            xv = xv - offx;
-            yv = yv - offy;
+                xv = xv - offx;
+                yv = yv - offy;
 
-            [Xv(:,:,lev), Yv(:,:,lev)] = meshgrid( xv, yv );
+                [Xv(:,:,lev), Yv(:,:,lev)] = meshgrid( xv, yv );
+            else
+                xv = delta : delta : (parms.m) * delta;
+                yv = delta : delta : (parms.n-1) * delta;
+
+                xv = xv - offx;
+                yv = yv - offy;
+
+                [Xvmg, Yvmg] = meshgrid( xv, yv );
+            end
  
         %--
     
@@ -111,7 +114,8 @@ for jj = 1 : 2
 
             %store omega for coarse-grid interpolation
             omega_s = omega;
-        else
+            
+        elseif lev < parms.mg
             
             omega = zeros( (parms.m-1) * (parms.n-1), 1 );
             
@@ -159,6 +163,53 @@ for jj = 1 : 2
             
             %save omega for next coarse grid
             omega_s = omega;
+            
+        else
+            
+            omega = zeros( (parms.m) * (parms.n-1), 1 );
+            
+            %--need some fancy indexing for what follows:
+            
+                %get indices of current grid (indices for overlapping
+                %region are zero)
+                indvortx = repmat(1 : parms.m,[1,parms.n-1]);
+                indvorty = repelem(1 : parms.n-1, parms.m);
+                vort_ind = get_vort_ind(indvortx,indvorty,lev,parms);
+            
+                %get all indices on gridlevel
+                indvortx = repmat(1 : parms.m,[1,parms.n-1]);
+                indvorty = repelem(1 : parms.n-1, parms.m);
+                vort_ind_f = get_vortb_ind(indvortx,indvorty,1,parms);
+                
+                %Get indices on gridlevel 1 just for overlapping part
+                indvortx = repmat(2 : 2 : parms.m-2,[1,parms.n/2-1]);
+                indvorty = repelem(2 : 2 : parms.n-2, parms.m/2-1);
+                vort_ind_s = get_vort_ind(indvortx,indvorty, 1, parms);
+                
+                %indexing on the vector gamma starts at 1...
+                n_sub = get_vort_ind( parms.m-1, parms.n-1, lev-1, parms);
+                
+                %non-overlapping indices:
+                ind_no_over = ( (vort_ind - n_sub) > 0  );
+                ind_no_over = vort_ind_f( ind_no_over ~= 0 );
+                
+                %overlapping indices:
+                ind_over = ( (vort_ind - n_sub) < 0  ); 
+                ind_over = vort_ind_f( ind_over ~= 0 );
+            
+            %--
+            
+            
+            
+            %Get part that doesn't overlap with finer grid
+            omega( ind_no_over ) = gamma( vort_ind( vort_ind ~= 0 ) )/ delta^2;
+            
+            
+%             %for overlapping part...
+            omega( ind_over ) = omega_s( vort_ind_s );
+%                         
+            Omegamg = transpose( reshape( omega, parms.m, parms.n-1 ) );
+            
 
         end
 
@@ -170,35 +221,42 @@ for jj = 1 : 2
     
     %plot them
     
-    figure(1), subplot(2,1,jj)
+    figure(1), clf
     
-    cmax_w = max(max(max(abs( Omega(:,:,1) ))));
-    clevs = linspace( -0.2, 0.2, 20 ) ;
-    Omega( Omega > max(clevs) ) = max(clevs);
-    Omega( Omega < min(clevs) ) = min( clevs );
+    cmax_w = max(max(max(abs( Omega ))));
+    clevs = linspace( -cmax_w, cmax_w, 12) ;
 
     for j = parms.mg : -1 : 1
         
-        contourf(Xv(:,:,j), Yv(:,:,j), Omega(:,:,j), clevs, ...
-            'edgecolor','none'); shading flat;
-        
-        colormap( cmap )
-        axis equal
-        axis(range)
-        set(gca, 'TickLabelInterpreter','latex','fontsize',14)
-        box on
-        if jj == 1
-            str = 'Re($\omega_p$)';
+        if j == parms.mg
+            
+            figure(1), hold on
+            contourf(Xvmg, Yvmg, Omegamg, clevs, ...
+                'edgecolor','none'); shading flat;
+
+%             pcolor(Xvmg, Yvmg, Omegamg ); shading interp;
+
+            colormap( cmap )
+            axis equal
+            
         else
-            str = 'Im($\omega_p$)';
-        end
         
-        title(str, 'interpreter','latex','fontsize',18)
-        hold on        
+            figure(1), hold on
+            contourf(Xv(:,:,j), Yv(:,:,j), Omega(:,:,j), clevs, ...
+                'edgecolor','none'); shading flat;
+
+%             pcolor(Xv(:,:,j), Yv(:,:,j), Omega(:,:,j) ); shading interp;
+
+%             caxis( 0.5 * caxis)
+            colormap( cmap )
+            axis equal
+%         axis(range)
+
+        end
+                
     end
     
     %plot body
-    plot(soln.xb( 1 : parms.nb ), soln.xb( 1+parms.nb : 2*parms.nb ),'k', ...
-        'linewidth', 2)
+    fill(parms.xb( 1 : parms.nb ), parms.xb( 1+parms.nb : 2*parms.nb ),'k'  )
 
-end
+

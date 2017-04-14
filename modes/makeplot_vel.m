@@ -21,10 +21,10 @@ load('cmap.mat')
     q = soln.q + parms.q0;
     q = q( 1 : get_velx_ind( parms.m-1, parms.n, parms.mg, parms ) );
     
-    Xv = zeros( parms.n, parms.m-1, parms.mg-1 );
+    Xv = zeros( parms.n, parms.m-1, parms.mg );
     Yv = Xv;
     U = Xv;
-    
+
     %Get x-y points and vorticity
     for lev = 1 : parms.mg
 

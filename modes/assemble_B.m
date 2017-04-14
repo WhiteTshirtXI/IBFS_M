@@ -12,7 +12,7 @@ tic
     %Total # of vel (flux) points
     nq = nu + nv;
     %# of vort (circ) points
-    ngam = get_vort_ind( parms.m-1, parms.n-1, parms.mg, parms );
+    ngam = get_vort_ind( parms.m, parms.n-1, parms.mg, parms );
     %# of body points
     nb = parms.nb;
     %# of surface stress points
@@ -23,43 +23,24 @@ tic
 
     C = mats.C; R = mats.R; M_vel = mats.M_vel; Lap = mats.Lap;
     Q = mats.Q; W = mats.W; ET = mats.ET; E = mats.E;
-    I = mats.I; RC = mats.RC;
+    I = mats.I; RC = mats.RC; I_til = mats.I_til;
 
 %--
 
-ndof = ngam + 6*nb + nf;
-mats.B = sparse( ndof, ndof ); 
+mats.B = sparse( ngam + nf, ngam + nf ); 
 
 %--(1,1) block
 
     B11 = R * C ;
     
+    %modify to account for Neumann bc
+    B11 = I_til * B11;
+    
     [i,j,s] = find( B11 );
     
-    mats.B = mats.B + sparse( i,j,s, ndof, ndof );
+    mats.B = mats.B + sparse( i,j,s, ngam+nf, ngam+nf );
 
 %--
-
-%--(2,2) block
-
-    B22 = mats.M_flag;
-    
-    [i,j,s] = find( B22 );
-    
-    mats.B = mats.B + sparse( i+ngam,j+ngam,s, ndof, ndof );
-
-%--
-
-%--(3,3) block
-
-    B33 = eye( size( mats.M_flag ) );
-    
-    [i,j,s] = find( B33 );
-    
-    mats.B = mats.B + sparse( i+ngam + 3*nb,j+ngam+ 3*nb,s, ndof, ndof );
-
-%--
-
 
 display('     done')
 

@@ -12,8 +12,8 @@ m = grid_parms.m; n = grid_parms.n; mg = grid_parms.mg; len = grid_parms.len;
 
 del = len / m;
 
-%Get size of C
-nrows = get_vort_ind( m-1, n-1, mg, grid_parms );
+%Get size of M_vort
+nrows = get_vort_ind( m, n-1, mg, grid_parms );
 ncols = nrows ;
 
 M_vort = sparse( nrows, ncols );
@@ -29,7 +29,11 @@ for glev = 1 : mg
         ind_s = 1 + get_vort_ind(m-1,n-1,glev-1,grid_parms);
     end
     
-    ind_e = get_vort_ind(m-1,n-1,glev,grid_parms);
+    if glev < mg
+        ind_e = get_vort_ind(m-1,n-1,glev,grid_parms);
+    else
+        ind_e = get_vort_ind(m,n-1,glev,grid_parms);
+    end
     
     ind = ind_s : ind_e;
     
