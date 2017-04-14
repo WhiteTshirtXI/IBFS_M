@@ -13,8 +13,8 @@ function Q = get_Q( grid_parms )
 m = grid_parms.m; n = grid_parms.n; mg = grid_parms.mg;
 
 %Get size of Q
-nrows = get_velx_ind( m-1, n, mg, grid_parms ) + ...
-    get_vely_ind( m, n-1, mg, grid_parms );
+nrows = get_velx_ind( m-1, n, 1, grid_parms ) + ...
+    get_vely_ind( m, n-1, 1, grid_parms );
 ncols = nrows;
 
 grid_parms.nrows = nrows;
@@ -23,27 +23,7 @@ grid_parms.ncols = ncols;
 %Initialize
 Q = sparse( nrows, ncols );
 
-%Loop through gridlevels
-for glev = 1 : mg
-    
-    %Get main blocks (not accounting for BC's)
-    Q = get_Q_main( Q, glev, grid_parms );
-    
-    %BC contributions from coarser grid on current grid
-    if mg > 1 & glev < mg
-        
-        Q = get_Q_fineedge_BCs( Q, glev, grid_parms );
-        
-    end
-    
-    %BC contributions from finer grid on current grid
-    if glev > 1
-        
-        Q = get_Q_coarseinner_BCs( Q, glev, grid_parms );
 
-    end
-end
-
-
-grid_parms = rmfield( grid_parms, 'nrows'); 
-grid_parms = rmfield( grid_parms, 'ncols');
+%Get main blocks (not accounting for BC's)
+Q = get_Q_main( Q, grid_parms );
+    

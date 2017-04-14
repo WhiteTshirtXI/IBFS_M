@@ -6,13 +6,14 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
     %grid spacing on finest grid
     h = parms.len / parms.m;
     %# of x-vel (flux) points
-    nu = parms.mg * parms.n * (parms.m-1); 
+    nu = 
+    nu = get_velx_ind( parms.m-1, parms.n, parms.mg, parms );
     %# of y-vel (flux) points
-    nv = parms.mg * parms.m * (parms.n-1);
+    nv = get_vely_ind( parms.m, parms.n-1, parms.mg, parms );
     %Total # of vel (flux) points
     nq = nu + nv;
     %# of vort (circ) points
-    ngam = parms.mg * (parms.m-1) * (parms.n-1);
+    ngam = get_vort_ind( parms.m-1, parms.n-1, parms.mg, parms );
     %# of streamfunction points (same as # of vort points)
     nstrm = ngam;
     %# of body points
@@ -55,9 +56,13 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
             hc = h * 2^(j-1);
 
             %index of x-vel flux points for current grid
-            
-            ind_x = (j-1)*parms.nq + ( 1 : nq );
-            
+            if j == 1
+                ind_x = 1 : get_velx_ind( parms.m-1, parms.n, j, parms );
+            else
+                ind_x = 1 + get_velx_ind( parms.m-1, parms.n, j-1, parms ) : ...
+                    get_velx_ind( parms.m-1, parms.n, j, parms );
+            end
+
             %write fluid velocity flux in body-fixed frame
             q0( ind_x ) = -parms.U_body * hc;
         end

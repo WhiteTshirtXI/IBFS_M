@@ -13,9 +13,9 @@ function W = get_W( grid_parms )
 m = grid_parms.m; n = grid_parms.n; mg = grid_parms.mg; 
 
 %Get size of W
-nrows = get_velx_ind( m-1, n, mg, grid_parms ) + ...
+nrows = get_velx_ind( m-1, n, 1, grid_parms ) + ...
     get_vely_ind( m, n-1, mg, grid_parms );
-ncols = get_vort_ind( m-1, n-1, mg, grid_parms );
+ncols = get_vort_ind( m-1, n-1, 1, grid_parms );
 
 grid_parms.nrows = nrows;
 grid_parms.ncols = ncols;
@@ -23,20 +23,7 @@ grid_parms.ncols = ncols;
 %Initialize
 W = sparse( nrows, ncols );
 
-%Loop through gridlevels
-for glev = 1 : mg
-    
-    %Get main blocks (not accounting for BC's)
-    W = get_W_main( W, glev, grid_parms );
-    
-    %BC contributions from coarser grid on current grid
-    if mg > 1 & glev < mg
-        
-        W = get_W_fineedge_BCs( W, glev, grid_parms );
-        
-    end
-    
-end
 
-grid_parms = rmfield( grid_parms, 'nrows'); 
-grid_parms = rmfield( grid_parms, 'ncols');
+%Get main blocks (not accounting for BC's)
+W = get_W_main( W, grid_parms );
+    
