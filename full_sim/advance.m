@@ -6,13 +6,13 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
     %grid spacing on finest grid
     h = parms.len / parms.m;
     %# of x-vel (flux) points
-    nu = parms.mg * parms.n * (parms.m-1); 
+    nu = parms.n * (parms.m-1); 
     %# of y-vel (flux) points
-    nv = parms.mg * parms.m * (parms.n-1);
+    nv = parms.m * (parms.n-1);
     %Total # of vel (flux) points
     nq = nu + nv;
     %# of vort (circ) points
-    ngam = parms.mg * (parms.m-1) * (parms.n-1);
+    ngam = (parms.m-1) * (parms.n-1);
     %# of streamfunction points (same as # of vort points)
     nstrm = ngam;
     %# of body points
@@ -44,22 +44,18 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
     if (it == 0)
 
-        q = zeros( nq, 1 );
-        gamma = zeros( ngam, 1 );
+        q = zeros( nq, parms.mg );
+        gamma = zeros( ngam, parms.mg );
         
         %freestream flux that doesn't contribute to vorticity
-        q0 = zeros( nq, 1 );
+        q0 = zeros( nq, parms.mg );
         for j = 1 : parms.mg
 
             %grid spacing on current grid
             hc = h * 2^(j-1);
 
-            %index of x-vel flux points for current grid
-            
-            ind_x = (j-1)*parms.nq + ( 1 : nq );
-            
             %write fluid velocity flux in body-fixed frame
-            q0( ind_x ) = -parms.U_body * hc;
+            q0( :, j ) = -parms.U_body * hc;
         end
         soln.q0 = q0;
         
@@ -75,9 +71,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 %--Build rhs (explicit part of time-stepping)
 
     %compute the nonlinear term 
-    %           R * ( Q*q ).* (W * gamma) 
-           
-    nonlin = mats.R * ( ( mats.W * gamma ) .* ( mats.Q * (q + q0) ) );
+    nonlin = get_nonlin( gamma, q, q0, parms, mats )
     
     if it == 0
         nonlin_prev = nonlin;

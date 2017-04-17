@@ -2,6 +2,7 @@ function [] = main_fun( soln, mats, parms )
 
 addpath('./build_mats/')
 
+
 %--Double-check that m and n were specified correctly
     if ( mod(parms.m, 4) ~=0 | mod(parms.n, 4) ~= 0 )
         error( 'Error: parms.m and parms.n must be divisible by 4')
