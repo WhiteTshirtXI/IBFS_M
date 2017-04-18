@@ -2,7 +2,7 @@ clear all, close all, clc
 
 addpath('./build_mats/')
 
-parms.m = 800; parms.n = 800; parms.mg = 1;
+parms.m = 100; parms.n = 100; parms.mg = 1;
 
 m = parms.m; n = parms.n;
 
