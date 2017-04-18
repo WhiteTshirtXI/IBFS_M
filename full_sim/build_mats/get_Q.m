@@ -10,7 +10,7 @@ function Q = get_Q( grid_parms )
 %Inputs: grid_parms -- data structure containing m (number of points in x
 %dirn), n (number of points in y dirn), and mg (number of grid levels)
 
-m = grid_parms.m; n = grid_parms.n; mg = grid_parms.mg;
+m = grid_parms.m; n = grid_parms.n; 
 
 %Get size of Q
 nrows = get_velx_ind( m-1, n, 1, grid_parms ) + ...

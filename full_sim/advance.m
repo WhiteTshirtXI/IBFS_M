@@ -64,6 +64,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
         gamma = soln.gamma;
         q0 = soln.q0;
         nonlin_prev = soln.nonlin_prev;
+        gamm_star = zeros( nq, mg );
     end
 %--
     
@@ -71,7 +72,12 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 %--Loop through different gridlevels and get trial circ
 
     nonlin = zeros( ngam, parms.mg );
+    rhs = nonlin;
+
     for j = parms.mg : -1 : 1
+        
+        %grid spacing on current grid
+            hc = h * 2^(j-1);
 
         %**Build rhs (explicit part of time-stepping)
 
@@ -81,25 +87,34 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
             if it == 0
                 nonlin_prev = nonlin;
             end
-
-            %combine explicit Laplacian and nonlinear terms into a rhs
-            rhs = (mats.I - dt/2 * mats.Lap) * gamma - ...
-                3*dt/2 * nonlin + dt/2 * nonlin_prev;
             
-            %add boundary conditions from Laplacian term
-            rhs = get_Lap_BCs( rhs, parms, mats );
-
-            %Store nonlinear solution for use in next time step
-            soln.nonlin_prev = nonlin;
+            %contribution of Laplacian...
+                rhsbc = zeros( ngam, 1 );
+                
+                %from explicit treatment of circulation
+                rhsbc = get_Lap_BCs( rhsbc, gamma, j, parms );
+                
+                %from current (trial) vorticity
+                rhsbc = get_Lap_BCs( rhsbc, gamm_star, j, parms );
+                
+            %combine explicit Laplacian and nonlinear terms into a rhs
+            rhs(:,j) = (mats.I - dt/2 * mats.Lap / (hc^2) ) * ...
+                gamma(:,j) - 3*dt/2 * nonlin(:,j) + ...
+                dt/2 * nonlin_prev(:,j) + dt/2 * rhsbc;
+            
+         
         %**
 
         %**trial circulation
 
-            gamm_star = mats.invIdtLap( rhs ); 
+            gamm_star(:, j) = Ainv( rhs(:,j), parms, mats ); 
 
         %**
 
     end
+    
+    %Store nonlinear solution for use in next time step
+    soln.nonlin_prev = nonlin;
 %--
     
 %--compute surface stress that corrects part of trial circulation not

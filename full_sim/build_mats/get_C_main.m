@@ -1,6 +1,6 @@
 function C = get_C_main( C,  grid_parms )
 
-m = grid_parms.m; n = grid_parms.n; mg = grid_parms.mg;
+m = grid_parms.m; n = grid_parms.n; 
 nrows = grid_parms.nrows;
 ncols = grid_parms.ncols;
 

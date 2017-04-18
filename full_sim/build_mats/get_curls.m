@@ -11,11 +11,11 @@ function [C, R] = get_curls( grid_parms )
 %dirn), n (number of points in y dirn), mg (number of grid levels), and len
 %(length of domain in x-dirn ==> dx = len / m )
 
-m = grid_parms.m; n = grid_parms.n; mg = grid_parms.mg;
+m = grid_parms.m; n = grid_parms.n; 
 
 %Get size of C
 nrows = get_velx_ind( m-1, n, 1, grid_parms ) + ...
-    get_vely_ind( m, n-1, mg, grid_parms ) ;
+    get_vely_ind( m, n-1, 1, grid_parms ) ;
 ncols = get_vort_ind( m-1, n-1, 1, grid_parms ) ;
 
 grid_parms.nrows = nrows;
@@ -23,9 +23,6 @@ grid_parms.ncols = ncols;
 
 C = sparse( nrows, ncols );
 
-%C matrix 
-
-    
 %Main blocks from current grid (without BC's)
 C = get_C_main( C, grid_parms );
  
