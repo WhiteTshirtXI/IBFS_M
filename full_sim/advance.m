@@ -67,28 +67,40 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
     end
 %--
     
-   
-%--Build rhs (explicit part of time-stepping)
 
-    %compute the nonlinear term 
-    nonlin = get_nonlin( gamma, q, q0, parms, mats )
-    
-    if it == 0
-        nonlin_prev = nonlin;
+%--Loop through different gridlevels and get trial circ
+
+    nonlin = zeros( ngam, parms.mg );
+    for j = parms.mg : -1 : 1
+
+        %**Build rhs (explicit part of time-stepping)
+
+            %compute the nonlinear term 
+            nonlin(:,j) = get_nonlin( gamma, q, q0, j, parms, mats );
+
+            if it == 0
+                nonlin_prev = nonlin;
+            end
+
+            %combine explicit Laplacian and nonlinear terms into a rhs
+            rhs = (mats.I - dt/2 * mats.Lap) * gamma - ...
+                3*dt/2 * nonlin + dt/2 * nonlin_prev;
+            
+            %add boundary conditions from Laplacian term
+            rhs = get_Lap_BCs( rhs, parms, mats );
+
+            %Store nonlinear solution for use in next time step
+            soln.nonlin_prev = nonlin;
+        %**
+
+        %**trial circulation
+
+            gamm_star = mats.invIdtLap( rhs ); 
+
+        %**
+
     end
-
-    %combine explicit Laplacian and nonlinear terms into a rhs
-    rhs = (mats.I - dt/2 * mats.Lap) * gamma - ...
-        3*dt/2 * nonlin + dt/2 * nonlin_prev;
-        
-    
-    %Store nonlinear solution for use in next time step
-    soln.nonlin_prev = nonlin;
 %--
-
-%--trial circulation
-
-    gamm_star = mats.invIdtLap( rhs ); 
     
 %--compute surface stress that corrects part of trial circulation not
 %  satisfying the no-slip BCs

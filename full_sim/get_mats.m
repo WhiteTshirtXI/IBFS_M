@@ -12,7 +12,7 @@ function mats = get_mats( parms )
     display('getting LU factorization of RC. Patience, grasshoppa...')
     [mats.LRC,mats.URC,mats.pRC,mats.qRC,mats.rRC] = lu(mats.RC);
 
-    %get matrix function handle for generalized e-val problem
+    %get matrix function handle for solving linear system
     mats.invRC = @(x) mats.qRC*(mats.URC\(mats.LRC\(mats.pRC*(mats.rRC \ x ) ) ) );
    
 %---
@@ -51,7 +51,7 @@ function mats = get_mats( parms )
     [mats.LLap,mats.ULap,mats.pLap,mats.qLap,mats.rLap] = lu( ...
         mats.I + parms.dt/2 * mats.Lap );
 
-    %get matrix function handle for generalized e-val problem
+    %get matrix function handle for solving linear system
     mats.invIdtLap = @(x) mats.qLap*( mats.ULap\( mats.LLap\( ...
         mats.pLap*( mats.rLap \ x ) ) ) );
    

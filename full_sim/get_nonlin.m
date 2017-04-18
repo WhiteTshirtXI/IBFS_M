@@ -1,4 +1,4 @@
-function nonlin = get_nonlin( gamma, q, q0, lev, parms, mats )
+function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
 
 %Build the nonlinear term. Without accounting for BCs, the answer is 
 %nonlin = mats.R * ( ( mats.W * gamma ) .* ( mats.Q * (q + q0) ) );
@@ -56,7 +56,7 @@ function nonlin = get_nonlin( gamma, q, q0, lev, parms, mats )
                 top = (3*n/4 - 1)*(m-1) + ( m/4 : 3*m/4 );
 
                 %indices for fine grid
-                topf = (n-2)*(m-1) + (1 : m-1);
+                topf = (n-1)*(m-1) + (1 : m-1);
 
                 %points that need to average coarser domain:
                 Wgam( topf(1:2:end) ) = Wgam( topf(1:2:end) ) + ...
@@ -72,13 +72,13 @@ function nonlin = get_nonlin( gamma, q, q0, lev, parms, mats )
 
             %!!y-velocity block
 
-                %left part
+            %left part
 
                 %indices on coarse grid corresponding to left edge of fine grid
                 left = (n/4 - 1)*(m-1) + ( m/4 : m-1 : (m-1)*n/2 + m/4 );
 
                 %indices for fine grid
-                leftf = 1 : m-1 : (m-1)*(n-2) + 1 ;
+                leftf = 1 : m : m*(n-2) + 1 ;
 
                 %points that need to average coarser domain:
                 Wgam( leftf(1:2:end) ) = Wgam( leftf(1:2:end) ) + ...
@@ -89,13 +89,13 @@ function nonlin = get_nonlin( gamma, q, q0, lev, parms, mats )
                 Wgam( leftf(2:2:end-1) ) = Wgam( leftf(2:2:end-1) ) + ...
                     scl * gamma( left(2:end-1), lev + 1);
 
-                %right part
+            %right part
 
                 %indices on coarse grid corresponding to right edge of fine grid
                 right = (n/4 - 1)*(m-1) + ( 3*m/4 : m-1 : (m-1)*n/2 + 3*m/4 );
 
                 %indices for fine grid
-                rightf = m-1 : m-1 : (m-1)*(n-2) + m-1 ;
+                rightf = m : m : m*(n-2) + m;
 
                 %points that need to average coarser domain:
                 Wgam( rightf(1:2:end) ) = Wgam( rightf(1:2:end) ) + ...
@@ -160,7 +160,7 @@ function nonlin = get_nonlin( gamma, q, q0, lev, parms, mats )
 
             %!!y-velocity block (averages x-velocities)
             
-                %left part
+            %left part
 
                 %indices on coarse grid corresponding to left edge of fine grid
                 left = ( n/4 )*(m-1) + ( m/4 : m-1 : (m-1)*(n/2-1) + m/4 );
@@ -177,7 +177,7 @@ function nonlin = get_nonlin( gamma, q, q0, lev, parms, mats )
                 Qqq0( leftf(1:2:end) ) = Qqq0( leftf(1:2:end) ) + ...
                     1/2 * qq0( left, lev + 1);
 
-                %right part
+            %right part
 
                 %indices on coarse grid corresponding to right edge of fine grid
                 right = ( n/4 )*(m-1) + ( 3*m/4 : m-1 : (m-1)*(n/2-1) + 3*m/4 );
@@ -202,7 +202,7 @@ function nonlin = get_nonlin( gamma, q, q0, lev, parms, mats )
 
 
 
- nonlin = mats.R * ( Wgam .* ( Qqq0 ) );
+ nonlin_v = mats.R * ( Wgam .* ( Qqq0 ) );
 
 
 
