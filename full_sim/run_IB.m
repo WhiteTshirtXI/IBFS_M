@@ -5,8 +5,8 @@ clear all, close all, clc
 %If it_start = 0, change variables in "if" statement to desired quantities.
 %Otherwise set the timestep at which you want to restart from file.
 it_start = 0; %Time step to start at (0 = new simulation)
-it_stop = 1000; %save every it_save time steps
-it_save = 1000; %Time step to end at
+it_stop = 100; %save every it_save time steps
+it_save = 10; %Time step to end at
 
 %set body
 parms.body = 'cyl';

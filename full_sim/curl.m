@@ -12,67 +12,52 @@ vflx = mats.C * stfn;
 
 %**Now for BCs
 
-    %!!account for x-velocity block (requires terms on bottom 
-    %  and top part of domain):
+    %!!x-velocity block (terms on bottom and top edges):
 
         %Bottom part
-
-            %points that need to average coarser domain:
-            vflx( 1:2:m-1 ) = vflx( 1:2:m-1 ) - ...
-                stbc( 1:2:m-1 ) ;
-
-            %points that don't need to average coarser domain:
-            vflx( 2:2:m-2 ) = vflx( 2:2:m-2 ) - ...
-                stbc( 2:2:m-2 );
+            
+            vflx( 1:m-1 ) = vflx( 1:m-1 ) - stbc( 1:m-1 ) ;
 
         %Top part
 
-            %indices for fine grid
+            %indices for vel grid
             topf = (n-1)*(m-1) + (1 : m-1);
             
-            topf(1:2:end)
+            %indices for stfcn grid
+            tops = (n-2)*(m-1) + (1 : m-1);
             
-            size( vflx )
-            size( stbc )
-
-            %points that need to average coarser domain:
-            vflx( topf(1:2:end) ) = vflx( topf(1:2:end) ) + ...
-                stbc( topf(1:2:end) );
-
-            %points that don't need to average coarser domain:
-            vflx( topf(2:2:end-1) ) = vflx( topf(2:2:end-1) ) + ...
-                stbc( topf(2:2:end-1) );
-
+            %incorporate into curl
+            vflx( topf ) = vflx( topf ) + stbc( tops );
 
     %!!    
 
     %!!y-velocity block
 
+        %yvel index begins after x vels
+        nadd = (m-1) * n; 
+        
         %left part
 
-            %indices for fine grid
-            leftf = 1 : m : m*(n-2) + 1 ;
+            %indices for vel grid
+            leftf = nadd + (1 : m : m*(n-2) + 1) ;
+            
+            %indices for strmfcn
+            lefts = ( 1 : m-1 : (n-2)*(m-1) + 1 );
 
-            %points that need to average coarser domain:
-            vflx( leftf(1:2:end) ) = vflx( leftf(1:2:end) ) + ...
-                stbc( leftf(1:2:end) ) ;
+            %incorporate into curl
+            vflx( leftf ) = vflx( leftf ) + stbc( lefts ) ;
 
-            %points that don't need to average coarser domain:
-            vflx( leftf(2:2:end-1) ) = vflx( leftf(2:2:end-1) ) + ...
-                stbc( leftf(2:2:end-1) );
 
         %right part
 
-            %indices for fine grid
-            rightf = m : m : m*(n-2) + m;
+            %indices for vel grid
+            rightf = nadd + ( m : m : m*(n-2) + m );
+            
+            %indices for stfcn grid
+            rights = ( m-1 : m-1 : (n-1)*(m-1) );
 
             %points that need to average coarser domain:
-            vflx( rightf(1:2:end) ) = vflx( rightf(1:2:end) ) - ...
-                stbc( rightf(1:2:end) );
-
-            %points that don't need to average coarser domain:
-            vflx( rightf(2:2:end-1) ) = vflx( rightf(2:2:end-1) ) - ...
-                stbc( rightf(2:2:end-1) );
+            vflx( rightf ) = vflx( rightf ) - stbc( rights );
 
     %!!
 

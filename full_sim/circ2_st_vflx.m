@@ -38,7 +38,7 @@ for j = ngrids : -1 : 1
 
     %--Get velocity on first grid from stream function
 
-        q = curl( stfn, stbc, parms );
+        q = curl( s(:,j), stbc, parms, mats );
 
     %--
     

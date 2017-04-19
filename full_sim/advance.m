@@ -140,7 +140,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
     %NOTE: stresses are multiplied by dt and are off from the physical
     %      stress by a scaling factor of ds/h.
     
-    q_star = circ2_st_vflx( gamma_star, parms.mg, parms, mats );
+    q_star = circ2_st_vflx( gamm_star, parms.mg, parms, mats );
     
     fb_til_dt = mats.Binv * ( 1/h * mats.E * q_star + 1/h * mats.E * q0 ); 
     %(q0 is the part that gets removed by taking the curl.)
@@ -154,7 +154,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 %--update circulation on fine grid to satisfy no-slip
 
 
-    gamma(:,1) = gamm_star(:,1) - Ainv( mats.R * mats.ET * fb_til_dt, parms, mats ) ;
+    gamma(:,1) = gamm_star(:,1) - Ainv( mats.R * mats.ET * fb_til_dt, 1, parms, mats ) ;
     %Note we don't include BCs from coarse grid for Ainv because surface
     %stresses are compact
     
@@ -162,7 +162,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
 %--Update circ on all grids
 
-    for j = 2 : mg
+    for j = 2 : parms.mg
 
         gamma(:, j) = coarsify( gamma(:,j), gamma(:,j+1), parms );
         
