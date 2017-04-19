@@ -20,9 +20,9 @@ if ( it_start == 0 )
     parms.it_stop = it_stop; 
     parms.it_save = it_save; 
     parms.Re = 50; %Reynolds #
-    parms.m = 4; %# of x points on finest domain
+    parms.m = 100; %# of x points on finest domain
     parms.len = 3; %length of domain in x-direction
-    parms.n = 4; %# of y points on finest domain (length in y-dirn is len/m * n )
+    parms.n = 100; %# of y points on finest domain (length in y-dirn is len/m * n )
     parms.dt = 0.001; %time step size in physical time
     parms.mg = 1; %# of domains
     parms.U_body = -1; %velocity of body in lab frame

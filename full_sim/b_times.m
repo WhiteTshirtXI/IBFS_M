@@ -7,23 +7,24 @@ function x = b_times( z, parms, mats )
 
 
 %--Initialize
-    m = parms.m; n = parms.n; mg = parms.mg;
-    nq = (m-1)*n + (n-1)*m; 
-    lev = 1; %body is in first grid level
 
-    circ = zeros( (m-1)*(n-1), mg ); stfn = circ; vflx = zeros(nq, 1);
+    m = parms.m; n = parms.n; mg = parms.mg;
+    h = (parms.len / parms.m); ngam = (m-1)* (n-1);
+
+    circ = zeros( (m-1)*(n-1), mg ); 
+    
 %--
 
 
 %-- get circulation from surface stress
 
     %Get circ on 1st grid level
-    circ(:, 1) = Ainv( mats.R * mats.ET * z, lev, parms, mats );
+    circ(:, 1) = Ainv( mats.R * mats.ET * z, 1, parms, mats );
     %We don't include BCs from coarse grid for Ainv because ET*z is compact
 
     %Coarsify circulation to second grid level to get BCs for stfn
     if mg > 1
-        circ(:,2) = coarsify( circ(:,1) );
+        circ(:,2) = coarsify( circ(:,1), circ(:,2), parms );
     end
 %--
 
@@ -39,32 +40,25 @@ function x = b_times( z, parms, mats )
         stfn = RCinv( circ(:,2), parms, mats );
 
         %Get bcs from this streamfunction on the 2nd gridlevel
-        stbc = get_stfn_BCs( stbc, stfn, 1, parms );
-        % (1 because we are getting bcs for first grid level) 
-        
-        %Get on fine grid level
-        stfn = RCinv( circ(:,1) + stbc, parms, mats );  
-        
-    else
-        
-        %Get on fine grid level
-        stfn = RCinv( circ(:,1), parms, mats );
+        stbc = get_stfn_BCs( stbc, stfn, parms );
         
     end
-    
+        
+    %Get on fine grid level
+    stfn = RCinv( circ(:,1) + stbc, parms, mats );
     
 %--
 
 %--Get velocity on first grid from stream function
 
-    vflx = curl( stfn, stbc, parms );
+    vflx = curl( stfn, stbc, parms, mats );
 
 %--
     
     
 %--Interpolate onto the body and scale by h
-
-    x = mats.E * vflx;
+    
+    x = mats.E * vflx / h;
 
 %--
 

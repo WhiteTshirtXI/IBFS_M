@@ -173,7 +173,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
 %--Get vel flux and streamfcn from circulation
 
-    [soln.q, soln.s] = circ2_st_vflx( gamma, parms.mg, parms, mats );
+    [soln.q, soln.s] = circ2_st_vflx( gamma, parms.mgparms, mats );
 
 %--
     
