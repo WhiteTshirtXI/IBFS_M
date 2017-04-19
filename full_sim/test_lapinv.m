@@ -2,7 +2,7 @@ clear all, close all, clc
 
 addpath('./build_mats/')
 
-parms.m = 100; parms.n = 100; parms.mg = 1;
+parms.m = 10; parms.n = 10; parms.mg = 1;
 
 m = parms.m; n = parms.n;
 
@@ -37,6 +37,7 @@ mats.lam = 2 .* ( cos( pi .* ii ./ m ) + cos( pi .* jj ./ n ) - 2);
 tic
 x2 = lapinv( b,  parms, mats );
 toc
+
 
 max(max( abs( x1 - x2 ) ) )
 

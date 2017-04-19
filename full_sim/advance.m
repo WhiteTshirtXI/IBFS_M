@@ -30,9 +30,22 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 %need to build and store matrix and its inverse if at first time step
     if it == 0
         
-        display('building and storing matrix inverse for computing surface stresses.')
-        mats.B = mats.E * mats.M_vel * mats.C * mats.invRC( ...
-            mats.invIdtLap( mats.R * mats.ET ) ) ;
+        display('building and storing matrix for computing surface stresses.')
+%         mats.B = 1/h * mats.E * mats.C * mats.invRC( ...
+%             mats.invIdtLap( mats.R * mats.ET ) ) ;
+
+        mats.B = zeros( nf, nf );
+        for j = 1 : nf
+           
+            z = zeros( nf, 1 );
+            z(j) = 1;
+            
+            mats.B(:,j) = b_times( z, parms, mats );
+            
+            
+        end
+
+        display('Pre-computing inverse for surface stresses.')
         mats.Binv = mats.B \ eye( nf, nf ) ;
         display('done!!')
 
@@ -107,8 +120,9 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
         %**trial circulation
 
-            gamm_star(:, j) = Ainv( rhs(:,j), parms, mats ); 
-
+            gamm_star(:, j) = Ainv( rhs(:,j), 1, parms, mats ); 
+            %(The 1 means we are evaluating Ainv at the first grid level)
+            
         %**
 
     end
@@ -124,8 +138,8 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
     %NOTE: stresses are multiplied by dt and are off from the physical
     %      stress by a scaling factor of ds/h.
     
-    fb_til_dt = mats.Binv * ( mats.E * mats.M_vel * mats.C * ...
-        ( mats.invRC( gamm_star ) ) + mats.E* mats.M_vel * q0 ); 
+    fb_til_dt = mats.Binv * ( 1/h * mats.E * mats.C * ...
+        ( -lapinv( gamm_star ) ) + 1/h * mats.E * q0 ); 
         %the q0 contribution is the part that gets 
         %removed by taking the curl.
 
@@ -134,8 +148,10 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 %--update circulation to satisfy no-slip
 
 
-    gamma = gamm_star - mats.invIdtLap( mats.R * mats.ET * fb_til_dt ) ;
-
+    gamma = gamm_star - Ainv( mats.R * mats.ET * fb_til_dt, parms, mats ) ;
+    %Note we don't include BCs from coarse grid for Ainv because surface
+    %stresses are compact
+    
 %--
     
     
