@@ -24,7 +24,7 @@ addpath('./build_mats/')
     parms.xb = xb;
     parms.nb = length( xb ) / 2;
     parms.ds = ds;
-        
+    
 %---
     
 %---preprocessing: 
@@ -50,7 +50,7 @@ addpath('./build_mats/')
     for it = parms.it_start : parms.it_stop
         
         %output occasionally to tell us we're advancing in time
-        if mod( it, 100 ) == 0 & it > 0
+        if mod( it, 10 ) == 0 & it > 0
             display( ['Advancing to time step ', num2str( it+1 )] )
         end
         

@@ -22,10 +22,15 @@ function x = b_times( z, parms, mats )
     circ(:, 1) = Ainv( mats.R * mats.ET * z, 1, parms, mats );
     %We don't include BCs from coarse grid for Ainv because ET*z is compact
 
+%     maxc = max(abs( circ(:, 1) ) )
+    
+    
     %Coarsify circulation to second grid level to get BCs for stfn
     if mg > 1
         circ(:,2) = coarsify( circ(:,1), circ(:,2), parms );
     end
+    
+%     maxc2 = max(abs( circ(:, 2) ) )
 %--
 
 %--Solve Poisson problem for stfn
@@ -47,18 +52,25 @@ function x = b_times( z, parms, mats )
     %Get on fine grid level
     stfn = RCinv( circ(:,1) + stbc, parms, mats );
     
+    
+%     maxs = max(abs( stfn ) )
 %--
 
 %--Get velocity on first grid from stream function
 
     vflx = curl( stfn, stbc, parms, mats );
 
+%     maxv = max(abs( vflx) )
 %--
     
     
 %--Interpolate onto the body and scale by h
     
     x = mats.E * vflx / h;
+    
+%     maxx = max(abs( x) )
+%     
+%     pause
 
 %--
 

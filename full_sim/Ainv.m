@@ -11,7 +11,7 @@ lamtil = 1 + mats.lam * parms.dt/( 2 * parms.Re * hc^2 );
 
 %scale to make inverse and direct transforms equal
 scl = 4 / (parms.m * parms.n ); 
-x = dst( transpose( dst( dst( transpose( dst( b ) ) ) ./ lamtil ) ) ) ./ scl;
+x = dst( transpose( dst( dst( transpose( dst( b ) ) ) ./ lamtil ) ) ) .* scl;
 
 %give output in same size as input b (before being reshaped)
 ngam = (parms.m-1) * (parms.n-1);
