@@ -129,7 +129,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 %             maxnono = max(abs( 3*dt/2 * nonlin_prev(:,j) ) )
 %             maxIdtL = max(abs( (mats.I - dt/2 * mats.Lap / (hc^2) ) * gamma(:,j) ))
 %             maxbc = max(abs( rhsbc) )
-            
+%             
             
          
         %**
@@ -160,7 +160,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
     
 %     maxqs = max(abs( q_star ) )
 %     
-%     maxq0 = max(abs( q0(:,1) / h ))
+%     maxq0 = max(abs( q0(:,1)  ))
 %     
     fb_til_dt = mats.Binv * ( 1/h * mats.E * q_star(:,1) + 1/h * mats.E * q0(:,1) ); 
     %(q0 is the part that gets removed by taking the curl.)
