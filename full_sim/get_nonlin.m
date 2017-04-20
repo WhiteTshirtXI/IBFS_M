@@ -203,7 +203,7 @@ function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
 
 
 
- nonlin_v = mats.R * ( Wgam .* ( Qqq0 ) );
+ nonlin_v = mats.R * ( Wgam .*  Qqq0  );
 
 
 

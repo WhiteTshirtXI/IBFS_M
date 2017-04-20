@@ -3,7 +3,8 @@ function rhsbc = get_Lap_BCs( rhsbc, rhs, lev, parms )
 %BCs used for Ainv
 
 
-m = parms.m; n = parms.n; mg = parms.mg;
+m = parms.m; n = parms.n; 
+h = parms.len/ parms.m;
 
 %grid spacing on current grid
 hc = h * 2^(lev-1);

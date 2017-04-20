@@ -48,6 +48,12 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
         display('Pre-computing inverse for surface stresses.')
         mats.Binv = mats.B \ eye( nf, nf ) ;
         display('done!!')
+%         
+%         Bshow = mats.B
+%         
+%         Binvshow = mats.Binv
+%         
+%         pause
 
     end
     
@@ -68,8 +74,10 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
             hc = h * 2^(j-1);
 
             %write fluid velocity flux in body-fixed frame
-            q0( :, j ) = -parms.U_body * hc;
+            q0( 1 : (parms.m-1)*parms.n, j ) = -parms.U_body * hc;
+            
         end
+        
         soln.q0 = q0;
         
     else
@@ -117,6 +125,12 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
                 gamma(:,j) - 3*dt/2 * nonlin(:,j) + ...
                 dt/2 * nonlin_prev(:,j) + dt/2 * rhsbc;
             
+%             maxnon = max(abs( 3*dt/2 * nonlin(:,j) ) )
+%             maxnono = max(abs( 3*dt/2 * nonlin_prev(:,j) ) )
+%             maxIdtL = max(abs( (mats.I - dt/2 * mats.Lap / (hc^2) ) * gamma(:,j) ))
+%             maxbc = max(abs( rhsbc) )
+            
+            
          
         %**
 
@@ -124,6 +138,8 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
             gamm_star(:,j) = Ainv( rhs(:,j), j, parms, mats ); 
             %(The 1 means we are evaluating Ainv at the first grid level)
+            
+%             max_gams = max(abs( gamm_star) )
             
         %**
 
@@ -142,29 +158,38 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
     
     q_star = circ2_st_vflx( gamm_star, parms.mg, parms, mats );
     
-    fb_til_dt = mats.Binv * ( 1/h * mats.E * q_star + 1/h * mats.E * q0 ); 
+%     maxqs = max(abs( q_star ) )
+%     
+%     maxq0 = max(abs( q0(:,1) / h ))
+%     
+    fb_til_dt = mats.Binv * ( 1/h * mats.E * q_star(:,1) + 1/h * mats.E * q0(:,1) ); 
     %(q0 is the part that gets removed by taking the curl.)
+    
+%     maxfb = max(abs( fb_til_dt * h / ds / dt))
         
     soln.fb = fb_til_dt * h / ds / dt ; %get surface stress in physical units
 
     soln.CD( it + 1 ) = 2 * sum( soln.fb(1 : nb) ) * ds;
     soln.CL( it + 1 ) = 2 * sum( soln.fb(1 + nb : nf ) ) * ds;
+    
 %--
 
 %--update circulation on fine grid to satisfy no-slip
 
-
+    gamma = gamm_star;
+    
     gamma(:,1) = gamm_star(:,1) - Ainv( mats.R * mats.ET * fb_til_dt, 1, parms, mats ) ;
     %Note we don't include BCs from coarse grid for Ainv because surface
     %stresses are compact
     
+%     max_g = max(abs( gamma(:,1) ) )
 %--
 
 %--Update circ on all grids
 
     for j = 2 : parms.mg
 
-        gamma(:, j) = coarsify( gamma(:,j), gamma(:,j+1), parms );
+        gamma(:, j) = coarsify( gamma(:,j-1), gamma(:,j), parms );
         
     end
     soln.gamma = gamma;
@@ -175,16 +200,22 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
     [soln.q, soln.s] = circ2_st_vflx( gamma, parms.mg, parms, mats );
 
+%     maxq = max(abs( soln.q(:,1) ) )
+%     maxs = max(abs( soln.s(:,1) ) )
+%     
+%     
+%    pause
+
 %--
     
 %--A few simulation quantities of interest
     
     %slip on IB
-    soln.slip( it + 1 ) = 1/h * max( abs( mats.E * soln.q - ...
-        mats.E*q0 ) );
+    soln.slip( it + 1 ) = 1/h * max( abs( mats.E * soln.q(:,1) + ...
+        mats.E*q0(:,1) ) );
     
     %get cfl (u * dt / dx) :
-    soln.cfl( it + 1 ) = max( abs( 1/(h^2) * soln.q * dt ) ) ; 
+    soln.cfl( it + 1 ) = max( abs( 1/(h^2) * soln.q(:,1) * dt ) ) ; 
     
 %--
         
