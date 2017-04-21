@@ -15,11 +15,11 @@ range = [-1 5 -2 2];
 
 load('cmap.mat')
 
-for it = 1000 : 1000 : 8000
+for it = 1000 : 1000 : 10000
 
     load(['outputs/runvars_it_',num2str(it),'.mat'])
 
-    gamma = soln.gamma;
+    gamma = soln.s;
     
     Xv = zeros( parms.n-1, parms.m-1, parms.mg );
     Yv = Xv;
@@ -56,10 +56,10 @@ for it = 1000 : 1000 : 8000
     
         %--get vorticity
 
-            omega = gamma( 1 : (parms.m-1)*(parms.n-1), lev ) / delta^2;
+            omega = gamma( 1 : (parms.m-1)*(parms.n-1), lev ) ;
 
-            omega(omega > cmax_w ) = cmax_w;
-            omega(omega < -cmax_w ) = -cmax_w;
+%             omega(omega > cmax_w ) = cmax_w;
+%             omega(omega < -cmax_w ) = -cmax_w;
 
             Omega(:,:,lev) = transpose( reshape( omega, parms.m-1, parms.n-1 ) );                                  
 
@@ -82,6 +82,8 @@ for it = 1000 : 1000 : 8000
         colormap( cmap )
         axis equal
         axis(range)
+            
+%         pause
         
     end
     

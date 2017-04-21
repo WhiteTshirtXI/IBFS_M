@@ -25,6 +25,7 @@ if ( it_start == 0 )
     parms.n = 100; %# of y points on finest domain (length in y-dirn is len/m * n )
     parms.dt = 0.001; %time step size in physical time
     parms.mg = 2; %# of domains
+    parms.mg = 3; %# of domains
     parms.U_body = -1; %velocity of body in lab frame
     parms.offx = 0.8; %offset in x dirn (on fine domain, x-grid runs from
                       %-parms.offx to len-parms.offx).

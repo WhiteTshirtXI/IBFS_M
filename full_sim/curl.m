@@ -16,7 +16,7 @@ vflx = mats.C * stfn;
 
         %Bottom part
             
-            vflx( 1:m-1 ) = vflx( 1:m-1 ) - stbc( 1:m-1 ) ;
+            vflx( 1:m-1 ) = vflx( 1:m-1 ) - stbc.bott( 1:m-1 ) ;
 
         %Top part
 
@@ -27,7 +27,7 @@ vflx = mats.C * stfn;
             tops = (n-2)*(m-1) + (1 : m-1);
             
             %incorporate into curl
-            vflx( topf ) = vflx( topf ) + stbc( tops );
+            vflx( topf ) = vflx( topf ) + stbc.top( tops );
 
     %!!    
 
@@ -45,7 +45,7 @@ vflx = mats.C * stfn;
             lefts = ( 1 : m-1 : (n-2)*(m-1) + 1 );
 
             %incorporate into curl
-            vflx( leftf ) = vflx( leftf ) + stbc( lefts ) ;
+            vflx( leftf ) = vflx( leftf ) + stbc.left( lefts ) ;
 
 
         %right part
@@ -57,7 +57,7 @@ vflx = mats.C * stfn;
             rights = ( m-1 : m-1 : (n-1)*(m-1) );
 
             %points that need to average coarser domain:
-            vflx( rightf ) = vflx( rightf ) - stbc( rights );
+            vflx( rightf ) = vflx( rightf ) - stbc.right( rights );
 
     %!!
 

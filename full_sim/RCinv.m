@@ -16,5 +16,6 @@ x = dst( transpose( dst( dst( transpose( dst( b ) ) ) ./ lam_sc ) ) );
 
 %give output in same size as input b (before being reshaped)
 ngam = (parms.m-1) * (parms.n-1);
+
 x = reshape( x, ngam, 1);
     
