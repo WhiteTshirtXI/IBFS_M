@@ -19,7 +19,7 @@ for it = 1000 : 1000 : 10000
 
     load(['outputs/runvars_it_',num2str(it),'.mat'])
 
-    gamma = soln.gamma;
+    gamma = soln.s;
     
     Xv = zeros( parms.n-1, parms.m-1, parms.mg );
     Yv = Xv;
@@ -56,7 +56,7 @@ for it = 1000 : 1000 : 10000
     
         %--get vorticity
 
-            omega = gamma( 1 : (parms.m-1)*(parms.n-1), lev ) / delta^2;
+            omega = gamma( 1 : (parms.m-1)*(parms.n-1), lev ) ;
 
 %             omega(omega > cmax_w ) = cmax_w;
 %             omega(omega < -cmax_w ) = -cmax_w;

@@ -6,20 +6,22 @@ addpath('../build_mats/')
 
 % Contour maximum values and number of contour levels
 % Vorticity
-cmax_w = 2;
-clev_w = 20;
-clevs = linspace( -cmax_w, cmax_w, clev_w );
+cmax_v = 2;
+clev_v = 20;
+clevs = linspace( 0, cmax_v, clev_v );
 
 % Range for plots
 range = [-4 10 -5 5];
 
 load('cmap.mat')
 
-for it = [1000]
+for it = 1000 : 1000 : 10000
 
     load(['outputs/runvars_it_',num2str(it),'.mat'])
 
     q = soln.q + soln.q0;
+
+%     q = soln.q;
     
     Xv = zeros( parms.n, parms.m-1, parms.mg );
     Yv = Xv;
@@ -58,8 +60,8 @@ for it = [1000]
 
             velu = q( 1 : (parms.m-1)*parms.n, lev ) / delta;
 
-            velu(velu > cmax_w ) = cmax_w;
-            velu(velu < -cmax_w ) = -cmax_w;
+%             velu(velu > cmax_v ) = cmax_v;
+%             velu(velu < 0 ) = 0;
 
             U(:,:,lev) = transpose( reshape( velu, parms.m-1, parms.n ) );                                  
 
@@ -73,7 +75,7 @@ for it = [1000]
     
     figure(1), clf
 
-    for j = parms.mg : -1 : 1
+    for j = 2 : -1 : 1
         
         figure(1), hold on
         contourf(Xv(:,:,j), Yv(:,:,j), U(:,:,j), clevs, ...

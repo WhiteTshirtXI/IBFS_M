@@ -15,7 +15,8 @@ for j = ngrids : -1 : 1
     %--Solve Poisson problem for stfn
     
         %BCs for Poisson problem (will be overwritten if mg > 1)
-        stbc = zeros( ngam, 1 );
+        stbc.bott = zeros( ngam, 1 );
+        stbc.top = stbc.bott; stbc.left = stbc.top; stbc.right = stbc.top;
     
         %don't need bcs for largest grid
         if ( j == ngrids ) 
@@ -30,7 +31,8 @@ for j = ngrids : -1 : 1
             stbc = get_stfn_BCs( stbc, s(:,j+1), parms );
             
             %Solve for streamfcn
-            s(:,j) = RCinv( gamma(:,j) + stbc, parms, mats );
+            s(:,j) = RCinv( gamma(:,j) + stbc.left + stbc.right + ...
+                stbc.bott + stbc.top, parms, mats );
             
         end
 

@@ -19,7 +19,8 @@ function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
 
 %--Build Wgamma and Q(q + q0) without accounting for BCs
 
-    Wgam = mats.W * gamma(:, lev );
+    %the 1/hc^2 term is to convert circ to vort
+    Wgam = 1/(hc^2) * mats.W * gamma(:, lev );
 
     qq0 = q + q0;
     Qqq0 = mats.Q*qq0(:, lev);
