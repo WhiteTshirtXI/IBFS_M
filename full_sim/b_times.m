@@ -11,10 +11,9 @@ function x = b_times( z, parms, mats )
     m = parms.m; n = parms.n; mg = parms.mg;
     h = (parms.len / parms.m); ngam = (m-1)* (n-1);
 
-    circ = zeros( (m-1)*(n-1), mg ); 
+    circ = zeros( ngam, mg ); 
     
 %--
-
 
 %-- get circulation from surface stress
 
@@ -30,39 +29,20 @@ function x = b_times( z, parms, mats )
     
 %--
 
-%--Solve Poisson problem for stfn
+%-- get vel flux from circulation
 
-    %BCs for Poisson problem (will be overwritten if mg > 1)
-    stbc.bott = zeros( ngam, 1 );
-    stbc.top = stbc.bott; stbc.left = stbc.top; stbc.right = stbc.top;
-
-    %If more than 1 grid then use 2nd grid for bcs
-    if mg > 1
-
-        %Solve on coarser grid level to get bcs for first grid level
-        stfn = RCinv( circ(:,2), parms, mats );
-
-        %Get bcs from this streamfunction on the 2nd gridlevel
-        stbc = get_stfn_BCs( stbc, stfn, parms );
-        
+    %only need to work with 2 grid levels
+    if parms.mg > 1
+        vflx = circ2_st_vflx( circ, 2,  parms, mats);
+    else
+        vflx = circ2_st_vlx( circ, 1, parms, mats );
     end
-        
-    %Get on fine grid level
-    stfn = RCinv( circ(:,1) + stbc.left + stbc.right + ...
-        stbc.bott + stbc.top, parms, mats );
-    
-%--
 
-%--Get velocity on first grid from stream function
-
-    vflx = curl( stfn, stbc, parms, mats );
-
-%--
-    
+%--    
     
 %--Interpolate onto the body and scale by h
     
-    x = mats.E * vflx / h;
+    x = mats.E * vflx(:,1) / h;
 
 %--
 

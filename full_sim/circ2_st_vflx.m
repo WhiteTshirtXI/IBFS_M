@@ -3,7 +3,6 @@ function [q, s] = circ2_st_vflx( gamma, ngrids, parms, mats )
 %Take vorticity on ngrids and return vel flux and streamfunction on those
 %grids
 
-
 m = parms.m; n = parms.n; 
 nq = (m-1)*n + (n-1) * m; ngam = (m-1)*(n-1);
 

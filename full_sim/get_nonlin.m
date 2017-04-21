@@ -154,7 +154,7 @@ function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
                     1/4 * qq0( top(2:end), lev + 1);
 
                 %points that don't need to average coarser domain:
-                Wgam( topf(1:2:end) ) = Wgam( topf(1:2:end) ) - ...
+                Qqq0( topf(1:2:end) ) = Qqq0( topf(1:2:end) ) - ...
                     1/2 * qq0( top, lev + 1);
 
 

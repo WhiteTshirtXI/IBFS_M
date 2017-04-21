@@ -28,7 +28,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
 %--
 %need to build and store matrix and its inverse if at first time step
-    if it == 0
+    if it == parms.it_start
         
         display('building and storing matrix for computing surface stresses.')
 
@@ -140,12 +140,18 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
     %NOTE: stresses are multiplied by dt and are off from the physical
     %      stress by a scaling factor of ds/h.
     
-    q_star = circ2_st_vflx( gamm_star, parms.mg, parms, mats );
+    
+    %don't need all grid levels to get trial velocity on 1st grid level
+    if parms.mg > 1
+        q_star = circ2_st_vflx( gamm_star, 2, parms, mats );
+    else
+        q_star = circ2_st_vflx( gamm_star, 1, parms, mats );
+    end
     
    
     fb_til_dt = mats.Binv * ( 1/h * mats.E * q_star(:,1) + 1/h * mats.E * q0(:,1) ); 
             
-    soln.fb = fb_til_dt * h / ds / dt ; %get surface stress in physical units
+    soln.fb = fb_til_dt * h / ds / dt ; %surface stress in physical units
 
     soln.CD( it + 1 ) = 2 * sum( soln.fb(1 : nb) ) * ds;
     soln.CL( it + 1 ) = 2 * sum( soln.fb(1 + nb : nf ) ) * ds;
@@ -156,10 +162,11 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
     gamma = gamm_star;
     
+    
     gamma(:,1) = gamm_star(:,1) - Ainv( mats.R * mats.ET * fb_til_dt, 1, parms, mats ) ;
     %Note we don't include BCs from coarse grid for Ainv because surface
     %stresses are compact
-    
+     
 %--
 
 %--Update circ on all grids

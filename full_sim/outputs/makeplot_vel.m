@@ -84,6 +84,7 @@ for it = 1000 : 1000 : 10000
         colormap( cmap )
         axis equal
 %         axis(range)
+%         pause
                 
     end
     
