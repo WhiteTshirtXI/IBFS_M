@@ -121,6 +121,11 @@ function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
         %**
         
         %** Qqq0 term
+        
+            %scaling factor to multiply qq0 by:
+            %   The 1/2 converts the velocity flux on the coarser grid to a
+            %   flux on the finer grid
+            scl = 1/2 ;
 
             %!!x-velocity block (contributions to top and bottom edges)
             %   averages y-velocities
@@ -133,12 +138,12 @@ function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
 
                 %points that need to average coarser domain:
                 Qqq0( 2:2:m-2 ) = Qqq0( 2:2:m-2 ) - ...
-                    1/4 * qq0( bottom(1:end-1), lev + 1) - ...
-                    1/4 * qq0( bottom(2:end), lev + 1);
+                    1/4 * scl * qq0( bottom(1:end-1), lev + 1) - ...
+                    1/4 * scl * qq0( bottom(2:end), lev + 1);
 
                 %points that don't need to average coarser domain:
                 Qqq0( 1:2:m-1 ) = Qqq0( 1:2:m-1 ) - ...
-                    1/2 * qq0( bottom, lev + 1);
+                    1/2 * scl * qq0( bottom, lev + 1);
 
             %Top part
 
@@ -150,12 +155,12 @@ function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
 
                 %points that need to average coarser domain:
                 Qqq0( topf(2:2:end-1) ) = Qqq0( topf(2:2:end-1) ) - ...
-                    1/4 * qq0( top(1:end-1), lev + 1) - ...
-                    1/4 * qq0( top(2:end), lev + 1);
+                    1/4 * scl * qq0( top(1:end-1), lev + 1) - ...
+                    1/4 * scl * qq0( top(2:end), lev + 1);
 
                 %points that don't need to average coarser domain:
                 Qqq0( topf(1:2:end) ) = Qqq0( topf(1:2:end) ) - ...
-                    1/2 * qq0( top, lev + 1);
+                    1/2 * scl * qq0( top, lev + 1);
 
 
             %!!    
@@ -172,12 +177,12 @@ function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
 
                 %points that need to average coarser domain:
                 Qqq0( leftf(2:2:end-1) ) = Qqq0( leftf(2:2:end-1) ) + ...
-                    1/4 * qq0( left(1:end-1), lev + 1) + ...
-                    1/4 * qq0( left(2:end), lev + 1);
+                    1/4 * scl * qq0( left(1:end-1), lev + 1) + ...
+                    1/4 * scl * qq0( left(2:end), lev + 1);
 
                 %points that don't need to average coarser domain:
                 Qqq0( leftf(1:2:end) ) = Qqq0( leftf(1:2:end) ) + ...
-                    1/2 * qq0( left, lev + 1);
+                    1/2 * scl * qq0( left, lev + 1);
 
             %right part
 
@@ -189,12 +194,12 @@ function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
 
                 %points that need to average coarser domain:
                 Qqq0( rightf(2:2:end-1) ) = Qqq0( rightf(2:2:end-1) ) + ...
-                    1/4 * qq0( right(1:end-1), lev + 1) + ...
-                    1/4 * qq0( right(2:end), lev + 1);
+                    1/4 * scl * qq0( right(1:end-1), lev + 1) + ...
+                    1/4 * scl * qq0( right(2:end), lev + 1);
 
                 %points that don't need to average coarser domain:
                 Qqq0( rightf(1:2:end) ) = Qqq0( rightf(1:2:end) ) + ...
-                    1/2 * qq0( right, lev + 1);
+                    1/2 * scl * qq0( right, lev + 1);
 
             %!!
         %**

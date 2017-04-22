@@ -24,8 +24,8 @@ ncols = grid_parms.ncols;
     indvely = repelem(2 : n, m-1);
     velx_ind = get_velx_ind(indvelx,indvely, 1 , grid_parms);
 
-    indvortx = repmat(1 : m-1, [1, n-1]);
-    indvorty = repelem(1 : n-1, m-1);
+%     indvortx = repmat(1 : m-1, [1, n-1]);
+%     indvorty = repelem(1 : n-1, m-1);
     vort_ind = get_vort_ind(indvortx,indvorty,1,grid_parms);
 
     C = C - sparse( velx_ind, vort_ind,...
@@ -55,8 +55,8 @@ ncols = grid_parms.ncols;
     indvely = repelem(1 : n-1, m-1);
     vely_ind = get_vely_ind(indvelx,indvely,1,grid_parms);
 
-    indvortx = repmat(1 : m-1,[1,n-1]);
-    indvorty = repelem(1 : n-1, m-1);
+%     indvortx = repmat(1 : m-1,[1,n-1]);
+%     indvorty = repelem(1 : n-1, m-1);
     vort_ind = get_vort_ind(indvortx,indvorty,1,grid_parms);
 
     C = C + sparse(n_add + vely_ind, vort_ind, ...

@@ -15,7 +15,7 @@ range = [-1 5 -2 2];
 
 load('cmap.mat')
 
-for it = 1000 : 1000 : 8000
+for it = 1000 : 1000 : 6000
 
     load(['outputs/runvars_it_',num2str(it),'.mat'])
 

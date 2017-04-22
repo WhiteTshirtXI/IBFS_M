@@ -144,7 +144,6 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
     else
         q_star = circ2_st_vflx( gamm_star, 1, parms, mats );
     end
-    
    
     fb_til_dt = mats.Binv * ( 1/h * mats.E * q_star(:,1) + 1/h * mats.E * q0(:,1) ); 
             

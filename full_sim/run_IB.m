@@ -5,7 +5,7 @@ clear all, close all, clc
 %If it_start = 0, change variables in "if" statement to desired quantities.
 %Otherwise set the timestep at which you want to restart from file.
 it_start = 0; %Time step to start at (0 = new simulation)
-it_stop = 1000; %save every it_save time steps
+it_stop = 6000; %save every it_save time steps
 it_save = 1000; %Time step to end at
 
 %set body
@@ -25,7 +25,7 @@ if ( it_start == 0 )
     parms.n = 100; %# of y points on finest domain (length in y-dirn is len/m * n )
     parms.dt = 0.001; %time step size in physical time
     parms.mg = 2; %# of domains
-    parms.mg = 3; %# of domains
+    parms.mg = 2; %# of domains
     parms.U_body = -1; %velocity of body in lab frame
     parms.offx = 0.8; %offset in x dirn (on fine domain, x-grid runs from
                       %-parms.offx to len-parms.offx).
