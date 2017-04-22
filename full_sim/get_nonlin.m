@@ -134,7 +134,7 @@ function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
 
                 %indices for coarse grid corresponding to bottom part of fine
                 %domain
-                bottom = (n/4 - 1) * m + ( m/4 + 1 : 3*m/4 );
+                bottom = nadd + (n/4 - 1) * m + ( m/4 + 1 : 3*m/4 );
 
                 %points that need to average coarser domain:
                 Qqq0( 2:2:m-2 ) = Qqq0( 2:2:m-2 ) - ...
@@ -148,7 +148,7 @@ function nonlin_v = get_nonlin( gamma, q, q0, lev, parms, mats )
             %Top part
 
                 %indices on coarse grid corresponding to top part of fine grid
-                top = (3*n/4 - 1)*m + ( m/4 + 1 : 3*m/4 );
+                top = nadd + (3*n/4 - 1)*m + ( m/4 + 1 : 3*m/4 );
 
                 %indices for fine grid
                 topf = (n-1)*(m-1) + (1 : m-1);

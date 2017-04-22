@@ -11,11 +11,11 @@ clev_w = 20;
 clevs = linspace( -cmax_w, cmax_w, clev_w );
 
 % Range for plots
-range = [-1 5 -2 2];
+range = [-1 10 -2 2];
 
 load('cmap.mat')
 
-for it = 1000 : 1000 : 6000
+for it = 1000 : 1000 : 3000
 
     load(['outputs/runvars_it_',num2str(it),'.mat'])
 
