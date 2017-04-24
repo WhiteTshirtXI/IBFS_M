@@ -1,19 +1,18 @@
-function ET = get_ET( xb, grid_parms, soln )
+function ET = get_ET( xb, grid_parms )
 
 %Return the regularization matrix ET (scaled to be the transpose of E),
 %which takes quantities on the IB and smears them to the flow domain.
-m = grid_parms.m; n = grid_parms.n; mg = grid_parms.mg;
+m = grid_parms.m; n = grid_parms.n; 
 nb = grid_parms.nb;
 len = grid_parms.len;
-
 supp = grid_parms.supp; offx = grid_parms.offx;
 offy = grid_parms.offy;
 
 del = len / m;
 
 %Get size of ET
-nrows = get_velx_ind( m-1, n, mg, grid_parms ) + ...
-    get_vely_ind( m, n-1, mg, grid_parms );
+nrows = get_velx_ind( m-1, n, 1, grid_parms ) + ...
+    get_vely_ind( m, n-1, 1, grid_parms );
 ncols = length(xb);
 
 ET = sparse( nrows, ncols );
@@ -156,7 +155,7 @@ ET = sparse( nrows, ncols );
         
         %Add to ET:
         %y index starts after all the x-vels
-        n_add = get_velx_ind( m-1, n, mg, grid_parms );
+        n_add = get_velx_ind( m-1, n, 1, grid_parms );
         ET = ET + sparse( n_add + vely_ind, xb_ind + nb, ...
             del_h, nrows, ncols );
 

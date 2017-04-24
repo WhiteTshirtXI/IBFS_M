@@ -57,7 +57,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
         q = zeros( nq, parms.mg );
         gamma = zeros( ngam, parms.mg );
         
-        chi = zeros( 3 * nb, 1); soln.chi = chi;
+        chi = zeros( 3 * nb, 1); 
         zeta = chi;
         zetad = zeta;
         fb_til_dt = zeros( 2*nb, 1);
@@ -184,6 +184,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
         while err_fsi > tol_fsi
 
+
             %--step 2: compute guess for surface stresses
                 
                 %Flag matrix that comes up a bunch
@@ -266,6 +267,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
             %--
 
+
         end
     
             %store flag quantities for next time step
@@ -282,9 +284,6 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
             else
                 soln.tip_disp( it+1 ) = chi( end -1 );
             end
-            
-            tip_disp = soln.tip_disp( it + 1 )
-            xtip = chi( 1 )
         %--
         
         

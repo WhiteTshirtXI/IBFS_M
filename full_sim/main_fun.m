@@ -1,6 +1,9 @@
 function [] = main_fun( soln, mats, parms )
 
-addpath('./build_mats/')
+addpath(genpath('./build_mats/'))
+addpath('./runtime_operators/')
+addpath('./body_gen/')
+
 
 %--Double-check that m and n were specified correctly
     if ( mod(parms.m, 4) ~=0 | mod(parms.n, 4) ~= 0 )
@@ -9,18 +12,9 @@ addpath('./build_mats/')
 
 %--
 
-%---Build flag
+%---Get body
 
-    h = parms.len / parms.m;
-    parms.ds = 2*h;
-    
-    %Reference configuration for flag
-    xb0x = 0 : parms.ds : 1;
-    xb0y = zeros( size( xb0x ) );
-    
-    parms.xb0 = [xb0x xb0y];
-    parms.nb = length( xb0x );
-    soln.xb = parms.xb0; %body position begins in undeformed state
+    [parms, soln] = get_body( parms );
     
 %---
     
@@ -31,7 +25,7 @@ addpath('./build_mats/')
         %build and store matrices using sparse operations
         display('------------------------------------------------------------')
         display('Pre-processing stage: building and storing matrices for run')
-        mats = get_mats_preproc( parms );
+        mats = get_mats_preproc( parms, soln );
 
         pre_time = toc;
 
@@ -39,7 +33,6 @@ addpath('./build_mats/')
         display(['Spent ',num2str(pre_time),' secs on pre-processing.']) 
         display('------------------------------------------------------------')
     end
-    
 %---
     
 
@@ -48,13 +41,13 @@ addpath('./build_mats/')
     for it = parms.it_start : parms.it_stop
         
         %output occasionally to tell us we're advancing in time
-        if mod( it, 1 ) == 0 & it > 0
+        if mod( it, 10 ) == 0 & it > 0
             display( ['Advancing to time step ', num2str( it+1 )] )
         end
-        
+       
         %advance a time step and return circulation (gamma), vel flux (q), and 
         %surface stress (fb)
-        [soln,parms,mats] = advance( it, parms, mats, soln );
+        [soln, parms, mats] = advance( it, parms, mats, soln );
         
         
         %save other variables if at a save point

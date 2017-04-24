@@ -18,7 +18,6 @@ yhat = yfun(spt);
 
 xb = [xhat, yhat];
 
-save('body.mat', 'xb' )
-
 %sanity check: make sure ds is equal to 2 * h
 ds = sqrt( (xhat(2) - xhat(1))^2 + (yhat(2) - yhat(1))^2 ) ;
+

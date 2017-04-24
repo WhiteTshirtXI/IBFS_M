@@ -12,7 +12,7 @@ function mats = get_mats( parms, mats, soln )
                         %a support of 6 grid cells...
 
 
-        mats.ET = get_ET( soln.xb, parms, soln );
+        mats.ET = get_ET( soln.xb, parms );
 
         mats.E = mats.ET' ;
 

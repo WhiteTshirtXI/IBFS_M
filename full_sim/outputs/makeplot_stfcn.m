@@ -6,12 +6,12 @@ addpath('../build_mats/')
 
 % Contour maximum values and number of contour levels
 % Vorticity
-cmax_v = 2;
-clev_v = 20;
-clevs = linspace( 0, cmax_v, clev_v );
+cmax_w = 3;
+clev_w = 20;
+clevs = linspace( -cmax_w, cmax_w, clev_w );
 
 % Range for plots
-range = [-4 10 -5 5];
+range = [-1 5 -2 2];
 
 load('cmap.mat')
 
@@ -19,11 +19,11 @@ for it = 1000 : 1000 : 10000
 
     load(['outputs/runvars_it_',num2str(it),'.mat'])
 
-    q = soln.q + soln.q0;
+    gamma = soln.s;
     
-    Xv = zeros( parms.n, parms.m-1, parms.mg );
+    Xv = zeros( parms.n-1, parms.m-1, parms.mg );
     Yv = Xv;
-    U = Xv;
+    Omega = Xv;
 
     %Get x-y points and vorticity
     for lev = 1 : parms.mg
@@ -45,7 +45,7 @@ for it = 1000 : 1000 : 10000
 
 
             xv = delta : delta : (parms.m-1) * delta;
-            yv = delta/2 : delta : (parms.n-1/2) * delta;
+            yv = delta : delta : (parms.n-1) * delta;
 
             xv = xv - offx;
             yv = yv - offy;
@@ -54,17 +54,17 @@ for it = 1000 : 1000 : 10000
  
         %--
     
-        %--get velocity
+        %--get vorticity
 
-            velu = q( 1 : (parms.m-1)*parms.n, lev ) / delta;
+            omega = gamma( 1 : (parms.m-1)*(parms.n-1), lev ) ;
 
-%             velu(velu > cmax_v ) = cmax_v;
-%             velu(velu < 0 ) = 0;
+%             omega(omega > cmax_w ) = cmax_w;
+%             omega(omega < -cmax_w ) = -cmax_w;
 
-            U(:,:,lev) = transpose( reshape( velu, parms.m-1, parms.n ) );                                  
+            Omega(:,:,lev) = transpose( reshape( omega, parms.m-1, parms.n-1 ) );                                  
 
+   
         %--
-
 
 
     end
@@ -73,20 +73,24 @@ for it = 1000 : 1000 : 10000
     
     figure(1), clf
 
-    for j = 2 : -1 : 1
+    for j = parms.mg : -1 : 1
         
         figure(1), hold on
-        contourf(Xv(:,:,j), Yv(:,:,j), U(:,:,j), clevs, ...
+        contourf(Xv(:,:,j), Yv(:,:,j), Omega(:,:,j), clevs, ...
             'edgecolor','none'); shading flat;
 
         colormap( cmap )
         axis equal
-%         axis(range)
+        axis(range)
+            
+%         pause
+        
     end
     
     %plot body
-    fill(soln.xb( 1 : parms.nb ), soln.xb( 1+parms.nb : 2*parms.nb ),'k'  )
-
+    fill(soln.xb( 1 : parms.nb ), soln.xb( 1+parms.nb : 2*parms.nb ), 'k'  )
 
     pause
+    
+    
 end

@@ -11,11 +11,11 @@ clev_w = 20;
 clevs = linspace( -cmax_w, cmax_w, clev_w );
 
 % Range for plots
-range = [-1 5 -2 2];
+range = [-1 10 -2 2];
 
 load('cmap.mat')
 
-for it = 0 : 10 : 100
+for it = 1000 : 1000 : 5000
 
     load(['outputs/runvars_it_',num2str(it),'.mat'])
 
@@ -56,72 +56,15 @@ for it = 0 : 10 : 100
     
         %--get vorticity
 
-        if lev == 1
-
-            ind_s = 1;
-            ind_e = get_vort_ind( parms.m-1, parms.n-1, lev, parms );
-            omega = gamma(ind_s : ind_e ) / delta^2;
+            omega = gamma( 1 : (parms.m-1)*(parms.n-1), lev ) / delta^2;
 
             omega(omega > cmax_w ) = cmax_w;
             omega(omega < -cmax_w ) = -cmax_w;
 
             Omega(:,:,lev) = transpose( reshape( omega, parms.m-1, parms.n-1 ) );                                  
 
-            %store omega for coarse-grid interpolation
-            omega_s = omega;
-        else
-            
-            omega = zeros( (parms.m-1) * (parms.n-1), 1 );
-            
-            %--need some fancy indexing for what follows:
-            
-                %get indices of current grid (indices for overlapping
-                %region are zero)
-                indvortx = repmat(1 : parms.m-1,[1,parms.n-1]);
-                indvorty = repelem(1 : parms.n-1, parms.m-1);
-                vort_ind = get_vort_ind(indvortx,indvorty,lev,parms);
-            
-                %get all indices on gridlevel 1
-                indvortx = repmat(1 : parms.m-1,[1,parms.n-1]);
-                indvorty = repelem(1 : parms.n-1, parms.m-1);
-                vort_ind_f = get_vort_ind(indvortx,indvorty,1,parms);
-                
-                %Get indices on gridlevel 1 just for overlapping part
-                indvortx = repmat(2 : 2 : parms.m-2,[1,parms.n/2-1]);
-                indvorty = repelem(2 : 2 : parms.n-2, parms.m/2-1);
-                vort_ind_s = get_vort_ind(indvortx,indvorty, 1, parms);
-                
-                %indexing on the vector gamma starts at 1...
-                n_sub = get_vort_ind( parms.m-1, parms.n-1, lev-1, parms);
-                
-                %non-overlapping indices:
-                ind_no_over = ( (vort_ind - n_sub) > 0  );
-                ind_no_over = vort_ind_f( ind_no_over ~= 0 );
-                
-                %overlapping indices:
-                ind_over = ( (vort_ind - n_sub) < 0  ); 
-                ind_over = vort_ind_f( ind_over ~= 0 );
-            
-            %--
-            
-            
-            
-            %Get part that doesn't overlap with finer grid
-            omega( ind_no_over ) = gamma( vort_ind( vort_ind ~= 0 ) )/ delta^2;
-            
-            
-%             %for overlapping part...
-            omega( ind_over ) = omega_s( vort_ind_s );
-%                         
-            Omega(:,:,lev) = transpose( reshape( omega, parms.m-1, parms.n-1 ) );
-            
-            %save omega for next coarse grid
-            omega_s = omega;
-
-        end
-
+   
         %--
-
 
 
     end
@@ -138,13 +81,14 @@ for it = 0 : 10 : 100
 
         colormap( cmap )
         axis equal
-%         axis(range)
-                
+        axis(range)
+        
     end
     
     %plot body
-    plot(soln.xb( 1 : parms.nb ), soln.xb( 1+parms.nb : 2*parms.nb ),'k'  )
-
+    fill(soln.xb( 1 : parms.nb ), soln.xb( 1+parms.nb : 2*parms.nb ),'k'  )
 
     pause
+    
+    
 end

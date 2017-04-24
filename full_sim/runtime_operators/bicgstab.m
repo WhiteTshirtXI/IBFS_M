@@ -12,12 +12,12 @@ eps = 1e-16;
 iter = 0;
 
 
-% display('---building and storing matrix computing surface stresses.')
-mats.B = mats.E * mats.M_vel * mats.C * mats.invRC( ...
-    mats.invIdtLap( mats.R * mats.ET ) ) ;
-% display('---done!!')
-
-B1 = mats.B;
+% % display('---building and storing matrix computing surface stresses.')
+% mats.B = mats.E * mats.M_vel * mats.C * mats.invRC( ...
+%     mats.invIdtLap( mats.R * mats.ET ) ) ;
+% % display('---done!!')
+% 
+% B1 = mats.B;
 
 
 B2 = 2/dt * mats.Itilde_flag * mats.sol_mat * mats.Q_flag * mats.W_flag;
@@ -26,7 +26,7 @@ B2 = B2 * h / parms.ds; %scaling associated with ratio of IB to flow spacing
 B2 = B2 / dt ; %Scaling associated with time stepping
 
 
-r = b -  B1 * x - B2 * x;
+r = b -  b_times( x, parms, mats )  - B2 * x;
 rhat = r;
 
 rho_o = 1;
@@ -46,7 +46,7 @@ while ( err >= eps & iter < 1000 )
    
    p = r + bta * (p - om * nu );
    
-   nu = B1 * p + B2 * p;
+   nu = b_times( p, parms, mats ) + B2 * p;
    
    alpha = rho_n / ( rhat' * nu );
    
@@ -54,7 +54,7 @@ while ( err >= eps & iter < 1000 )
    
    sv = r - alpha * nu;
    
-   tv = B1 * sv + B2 * sv;
+   tv = b_times( sv, parms, mats ) + B2 * sv;
    
    om = (tv' * sv) / (tv' * tv);
    
