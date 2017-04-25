@@ -50,7 +50,7 @@ if parms.inverted == 'T'
         
         if bc_type(count) == 1
             M(j,:) = 0;
-%             M(:,j) = 0;
+            M(:,j) = 0;
         end
         
     end
@@ -63,7 +63,7 @@ else
         
         if bc_type(count) == 1
             M(j,:) = 0;
-%             M(:,j) = 0;
+            M(:,j) = 0;
         end
         
     end

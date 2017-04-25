@@ -7,17 +7,9 @@ function x = bicgstab( x, b, parms, mats )
 dt = parms.dt;
 
 err = 1;
-eps = 1e-16;
+eps = 1e-14;
 
 iter = 0;
-
-
-% % display('---building and storing matrix computing surface stresses.')
-% mats.B = mats.E * mats.M_vel * mats.C * mats.invRC( ...
-%     mats.invIdtLap( mats.R * mats.ET ) ) ;
-% % display('---done!!')
-% 
-% B1 = mats.B;
 
 
 B2 = 2/dt * mats.Itilde_flag * mats.sol_mat * mats.Q_flag * mats.W_flag;
@@ -26,7 +18,7 @@ B2 = B2 * h / parms.ds; %scaling associated with ratio of IB to flow spacing
 B2 = B2 / dt ; %Scaling associated with time stepping
 
 
-r = b -  b_times( x, parms, mats )  - B2 * x;
+r = b - b_times( x, parms, mats ) - B2 * x;
 rhat = r;
 
 rho_o = 1;
@@ -35,6 +27,8 @@ om = 1;
 
 nu = 0;
 p = 0;
+
+eps = eps / h;
 
 while ( err >= eps & iter < 1000 )
     
@@ -68,6 +62,7 @@ while ( err >= eps & iter < 1000 )
     
     
 end
+
 
 if (iter == 1000)
    

@@ -15,7 +15,7 @@ range = [-1 10 -2 2];
 
 load('cmap.mat')
 
-for it = 1000 : 1000 : 5000
+for it = 10000: 5000 : 30000
 
     load(['outputs/runvars_it_',num2str(it),'.mat'])
 
@@ -86,7 +86,7 @@ for it = 1000 : 1000 : 5000
     end
     
     %plot body
-    fill(soln.xb( 1 : parms.nb ), soln.xb( 1+parms.nb : 2*parms.nb ),'k'  )
+    plot(soln.xb( 1 : parms.nb ), soln.xb( 1+parms.nb : 2*parms.nb ),'k'  )
 
     pause
     

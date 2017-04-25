@@ -130,6 +130,21 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
                 dt/2 * nonlin_prev(:,j) + dt/2 * rhsbc;
             
         %**
+        
+        
+        
+        %kick
+        if it == 10
+            rhs(24, 1) = rhs(24,1) + 1e-2;
+        end
+        
+        
+        
+        
+        
+        
+        
+        
 
         %**trial circulation
 
@@ -181,7 +196,8 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
             zetadold = zetad;
 
         %--
-
+    
+        
         while err_fsi > tol_fsi
 
             %--step 2: compute guess for surface stresses
@@ -251,7 +267,12 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
                 zeta = -zetaold + 2/dt * (chi - chiold);
                 zetad = 4/(dt^2) * ( chi - chiold) - 4/dt*zetaold - zetadold;
 
-                xb = parms.xb0 + (mats.Itilde_flag * chi)';
+                soln.xb = parms.xb0 + (mats.Itilde_flag * chi)';
+                
+                %store flag quantities for next time step
+                soln.chi = chi;
+                soln.zeta = zeta;
+                soln.zetad = zetad;
 
             %--
 
@@ -265,30 +286,25 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
                 end
 
             %--
+       
 
         end
-    
-            %store flag quantities for next time step
-            soln.chi = chi;
-            soln.zeta = zeta;
-            soln.zetad = zetad;
-            soln.xb = xb;
             
             soln.CD( it + 1 ) = 2 * sum( soln.fb(1 : nb) ) * ds;
             soln.CL( it + 1 ) = 2 * sum( soln.fb(1 + nb : nf ) ) * ds;
             
             if parms.inverted == 'T'
-                soln.tip_disp( it+1 ) = chi( 2 );
+                soln.tip_disp( it+1 ) = soln.chi( 2 );
             else
-                soln.tip_disp( it+1 ) = chi( end -1 );
+                soln.tip_disp( it+1 ) = soln.chi( end - 1 );
             end
             
-            tip_disp = soln.tip_disp( it + 1 )
-            xtip = chi( 1 )
         %--
         
         
     end
+    
+   
 %--
 
 %--update circulation on fine grid to satisfy no-slip

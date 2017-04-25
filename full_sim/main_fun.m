@@ -14,8 +14,9 @@ addpath('./body_gen/')
 
 %---Get body
 
-    [parms, soln] = get_body( parms );
-    
+    if parms.it_start == 0
+        [parms, soln] = get_body( parms );
+    end
 %---
     
 %---preprocessing: 
@@ -41,8 +42,9 @@ addpath('./body_gen/')
     for it = parms.it_start : parms.it_stop
         
         %output occasionally to tell us we're advancing in time
-        if mod( it, 10 ) == 0 & it > 0
+        if mod( it, 1 ) == 0 & it > 0
             display( ['Advancing to time step ', num2str( it+1 )] )
+            display( ['Tip displacement = ', num2str( soln.tip_disp( it ) ) ] )
         end
        
         %advance a time step and return circulation (gamma), vel flux (q), and 

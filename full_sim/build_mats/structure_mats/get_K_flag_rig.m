@@ -25,7 +25,7 @@ for j = 1 : nel
     Mf2 = qL( qind( 3 ) );
     
     zvect = [s(j) -c(j) 0 -s(j) c(j) 0]';
-    rvect = -[c(j)  s(j) 0 -c(j) -s(j) 0]';
+    rvect = -[c(j)  s(j) 0 -c(j) s(j) 0]';
     
     K2 = Nf/L(j)*(zvect*zvect') + (Mf1 + Mf2)/( L(j)^2 )*( rvect*zvect' + ...
         zvect*rvect' );
