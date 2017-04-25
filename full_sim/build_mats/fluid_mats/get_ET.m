@@ -5,7 +5,7 @@ function ET = get_ET( xb, grid_parms )
 m = grid_parms.m; n = grid_parms.n; 
 nb = grid_parms.nb;
 len = grid_parms.len;
-supp = grid_parms.supp; offx = grid_parms.offx;
+supp = ceil(grid_parms.supp / 2); offx = grid_parms.offx;
 offy = grid_parms.offy;
 
 del = len / m;

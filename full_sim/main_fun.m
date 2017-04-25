@@ -26,7 +26,7 @@ addpath('./body_gen/')
         %build and store matrices using sparse operations
         display('------------------------------------------------------------')
         display('Pre-processing stage: building and storing matrices for run')
-        mats = get_mats_preproc( parms, soln );
+        [mats, parms] = get_mats_preproc( parms, soln );
 
         pre_time = toc;
 
@@ -44,7 +44,10 @@ addpath('./body_gen/')
         %output occasionally to tell us we're advancing in time
         if mod( it, 1 ) == 0 & it > 0
             display( ['Advancing to time step ', num2str( it+1 )] )
-            display( ['Tip displacement = ', num2str( soln.tip_disp( it ) ) ] )
+            display( ['cfl = ', num2str( soln.cfl(it) )] )
+            if parms.deform == 'T'
+                display( ['Tip displacement = ', num2str( soln.tip_disp( it ) ) ] )
+            end
         end
        
         %advance a time step and return circulation (gamma), vel flux (q), and 

@@ -4,9 +4,9 @@ clear all, close all, clc
 
 %If it_start = 0, change variables in "if" statement to desired quantities.
 %Otherwise set the timestep at which you want to restart from file.
-it_start = 5000; %Time step to start at (0 = new simulation)
-it_stop = 50000; %save every it_save time steps
-it_save = 5000; %Time step to end at
+it_start = 0; %Time step to start at (0 = new simulation)
+it_stop = 30000; %save every it_save time steps
+it_save = 1000; %Time step to end at
 
 if ( it_start == 0 )
     parms.it_start = it_start; 

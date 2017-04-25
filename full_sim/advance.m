@@ -134,8 +134,8 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
         
         
         %kick
-        if it == 10
-            rhs(24, 1) = rhs(24,1) + 1e-2;
+        if ( parms.deform == 'T' & it == 10 )
+            rhs(24, 1) = rhs(24,1) + 1e-1;
         end
         
         
@@ -188,7 +188,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
             tol_fsi = 1.d-5;
 
             %Update matrices that depend on flag position and velocity
-            mats = get_mats( parms, mats, soln );
+            [mats, parms] = get_mats( parms, mats, soln );
 
             %store old body position and velocity
             chiold = chi;
@@ -281,7 +281,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
                 if ( err_fsi >= tol_fsi )
 
                     %Update matrices that depend on flag position and vel
-                    mats = get_mats( parms, mats, soln );
+                    [mats, parms] = get_mats( parms, mats, soln );
 
                 end
 
@@ -311,8 +311,8 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
 
     gamma = gamm_star;
     
-    gamma(:,1) = gamm_star(:,1) - Ainv( mats.R * mats.ET ...
-        * fb_til_dt, 1, parms, mats ) ;
+    gamma(:,1) = gamm_star(:,1) - Ainv( mats.R*mats.ET * fb_til_dt, ...
+        1, parms, mats ) ;
     %Note we don't include BCs from coarse grid for Ainv because surface
     %stresses are compact
     
@@ -339,7 +339,7 @@ function [soln,parms,mats] = advance( it, parms, mats, soln )
     
     %slip on IB
     soln.slip( it + 1 ) = 1/h * max( abs( mats.E * soln.q(:,1) + ...
-        mats.E*q0(:,1) ) );
+        mats.E * q0(:,1) ) );
     
     %get cfl (u * dt / dx) :
     soln.cfl( it + 1 ) = max( abs( 1/(h^2) * soln.q(:,1) * dt ) ) ; 

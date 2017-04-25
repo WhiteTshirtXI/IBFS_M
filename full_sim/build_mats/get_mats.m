@@ -1,4 +1,4 @@
-function mats = get_mats( parms, mats, soln )
+function [mats, parms] = get_mats( parms, mats, soln )
 
 %Build and store matrices required for simulation
 
@@ -11,7 +11,8 @@ function mats = get_mats( parms, mats, soln )
         parms.supp = 6; %currently using a delta function with 
                         %a support of 6 grid cells...
 
-
+%         parms = setup_reg( soln.xb, parms );
+                        
         mats.ET = get_ET( soln.xb, parms );
 
         mats.E = mats.ET' ;
